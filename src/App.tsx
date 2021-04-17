@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './App.css';
 
-function App() {
+import DxfParser from './dxf-parser/src/index';
+import { init } from './render';
+
+const App: React.FC = () => {
+  
+  useEffect(() => {
+    fetch('http://127.0.0.1:4300/getData')
+      .then((res) => res.json())
+      .then(({ data }) => {
+        const parser = new DxfParser();
+        const dxf: any = parser.parseSync(data);
+  
+        dxf.entities.forEach((e: any) => {
+          if (e.type === 'INSERT') {
+            dxf.blocks[e.name].id = e.id;
+            dxf.blocks[e.name].parentId = e.parentId;
+          }
+        })
+        
+        init(dxf);
+      });
+  }, []);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app'>
+      <canvas id="canvas"/>
     </div>
   );
-}
+};
 
 export default App;
