@@ -30,6 +30,12 @@ export interface IEntity {
   parentId?: string;
   name?: string;
   position?: IVertex;
+  rotation?: number;
+}
+
+export interface ICircleEntity extends IEntity {
+  center: IVertex;
+  radius: number;
 }
 
 export interface IVertex {

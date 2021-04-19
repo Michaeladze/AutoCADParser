@@ -31,14 +31,31 @@ export const init = (dxf: IDxf) => {
       if (e.type === 'INSERT' && e.name) {
         const block = dxf.blocks[e.name];
         if (block && block.entities) {
-          block.entities.forEach((be: any) => {
-            drawLine(be, ctx, scale, e.position);
+          block.entities.forEach((be: IEntity) => {
+            const blockEntity: IEntity = {
+              ...be,
+              position: e.position,
+              rotation: e.rotation
+            };
+            
+            switch (be.type) {
+              case 'LINE':
+              case 'LWPOLYLINE':
+                drawLine(blockEntity, ctx, scale);
+                break;
+              case 'CIRCLE':
+                break;
+              case 'ARC':
+                break;
+            }
+            
           })
         }
-      }
-      
-      if (e.layer !== 'Основные надписи' && (e.type === 'LINE' || e.type === 'LWPOLYLINE')) {
-        drawLine(e, ctx, scale);
+      } else if (e.type === 'LINE' || e.type === 'LWPOLYLINE') {
+        if (e.layer !== 'Основные надписи') {
+          drawLine(e, ctx, scale);
+        }
+      } else if (e.type === 'ARC') {
       }
     }
   )
@@ -47,21 +64,24 @@ export const init = (dxf: IDxf) => {
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** Отрисовка линии */
-function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, position?: IVertex) {
+function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any) {
   if (!entity?.vertices) {
     return;
   }
   
-  const points: any = [];
-  const dx = position?.x || 0;
-  const dy = position?.y || 0;
+  let points: IVertex[] = [];
+  const dx = entity.position?.x || 0;
+  const dy = entity.position?.y || 0;
   
   entity.vertices.forEach((v: IVertex) => {
     const x = v.x + dx;
     const y = v.y + dy;
     
-    points.push({ x: scale.x(x), y: scale.y(y) });
+    points.push({ x: scale.x(x), y: scale.y(y), z: 0 });
   });
+  
+  const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
+  points = points.map((p: IVertex) => rotatePoint({x: scale.x(dx), y: scale.y(dy), z: 0}, angle, p))
   
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
@@ -71,10 +91,31 @@ function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, po
   ctx.stroke();
 }
 
+// function drawCircle(entity: ICircleEntity, ctx: CanvasRenderingContext2D, scale: any) {
+//   const dx = entity.position?.x || 0;
+//   const dy = entity.position?.y || 0;
+//
+//   const cx = scale.x(dx + entity.center.x);
+//   const cy = scale.y(dy + entity.center.y);
+//
+//   console.log(entity,cx, cy)
+//
+//   ctx.beginPath();
+//   ctx.arc(cx, cy, 5, 0, 2 * Math.PI, false);
+//   ctx.strokeStyle = 'crimson';
+//   ctx.stroke();
+//   ctx.strokeStyle = 'black';
+// }
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// HELPERS
+
+
 /** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
 function getScales(data: IDxf, width: number, height: number) {
   const x = d3.scaleLinear().range([0, width]);
-  const y = d3.scaleLinear().range([0, height]);
+  const y = d3.scaleLinear().range([height, 0]);
   
   const { xDomain, yDomain }: IRanges = findRanges(data);
   x.domain(xDomain);
@@ -116,4 +157,21 @@ function findRanges(dxf: IDxf): IRanges {
     xDomain: [minX, maxX],
     yDomain: [minY, maxY]
   }
+}
+
+function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVertex {
+  const p = {...point};
+  const sin: number = Math.sin(angle);
+  const cos: number = Math.cos(angle);
+  
+  p.x -= pivot.x;
+  p.y -= pivot.y;
+  
+  const x = p.x * cos - p.y * sin;
+  const y = p.x * sin + p.y * cos;
+  
+  p.x = x + pivot.x;
+  p.y = y + pivot.y;
+  
+  return p;
 }
