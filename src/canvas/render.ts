@@ -1,6 +1,6 @@
 import { IDxf, IEntity } from '../types/types';
 import paper from 'paper';
-import { drawEntity, drawLine } from './draw';
+import { drawEntity } from './draw';
 import { getScales } from './helpers';
 
 export const init = (dxf: IDxf) => {
@@ -12,9 +12,7 @@ export const init = (dxf: IDxf) => {
   }
   
   paper.setup(canvas);
-  
   const scale = getScales(dxf, window.innerWidth, window.innerHeight);
-  
 
   dxf.entities.forEach((entity: IEntity) => {
       if (entity.type === 'INSERT' && entity.name) {
@@ -25,6 +23,8 @@ export const init = (dxf: IDxf) => {
             const blockEntity: IEntity = {
               ...be,
               name: entity.name,
+              id: entity.id,
+              parentId: entity.parentId,
               position: entity.position,
               rotation: entity.rotation
             };
@@ -38,22 +38,3 @@ export const init = (dxf: IDxf) => {
     }
   )
 }
-
-
-// const SCALE = 1;
-// const PADDING = 0;
-// const WIDTH = window.innerWidth - 2 * PADDING;
-// const HEIGHT = window.innerHeight - 2 * PADDING;
-// const pixelRatio = window.devicePixelRatio || 1;
-//
-// canvas.width = SCALE * WIDTH * pixelRatio;
-// canvas.height = SCALE * HEIGHT * pixelRatio;
-//
-// canvas.style.width = `${ SCALE * WIDTH }px`;
-// canvas.style.height = `${ SCALE * HEIGHT }px`;
-//
-// const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-// ctx.scale(pixelRatio, pixelRatio);
-// ctx.imageSmoothingEnabled = false;
-
-// const scale = getScales(dxf, WIDTH, HEIGHT);

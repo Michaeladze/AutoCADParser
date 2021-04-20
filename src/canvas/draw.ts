@@ -2,6 +2,7 @@ import { IArcEntity, IEllipseEntity, IEntity, IHatchEntity, IVertex } from '../t
 import { calculatePoints } from './helpers';
 import * as paper from 'paper';
 
+
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
   switch (entity.type) {
     case 'LINE':
@@ -19,6 +20,8 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
       break;
     case 'HATCH':
       drawHatch(entity as IHatchEntity, scale, !!insert)
+      break;
+    case 'MTEXT':
       break;
     default:
       // console.log(entity)
@@ -59,10 +62,14 @@ export function drawEllipse(entity: IEllipseEntity, scale: any) {
   // });
 }
 
+let activeEntity: any = undefined;
+let hoverEntity: any = undefined;
+
 export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
-      strokeColor: 'black'
+      fillColor: 'rgb(147, 149, 152)',
+      strokeColor: 'rgb(147, 149, 152)'
     });
     
     const flat: IVertex[] = boundary.reduce((acc: IVertex[], v: IVertex[]) => {
@@ -77,5 +84,35 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
     points.forEach((point: IVertex) => {
       path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
     });
+    
+    if (entity.layer === '0') {
+      // @ts-ignore
+      path.fillColor = '#efefef'
+      path.sendToBack();
+    }
+    
+    if (insert) {
+      // @ts-ignore
+      path.fillColor = 'white';
+      path.onClick = () => {
+        if (activeEntity) {
+          activeEntity.fillColor = 'white';
+        }
+        activeEntity = path;
+        activeEntity.fillColor = 'crimson';
+        console.log(entity)
+      }
+      
+      path.onMouseEnter = () => {
+        hoverEntity = path;
+        hoverEntity.fillColor = 'teal';
+      }
+      
+      path.onMouseLeave = () => {
+        if (hoverEntity && path !== activeEntity) {
+          hoverEntity.fillColor = 'white';
+        }
+      }
+    }
   })
 }

@@ -90,17 +90,22 @@ export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVer
   return p;
 }
 
-export function collides(rects: any, x: number, y: number): any {
-  let isCollision = false;
-  for (let i = 0, len = rects.length; i < len; i++) {
-    let left = rects[i].x, right = rects[i].x + rects[i].w;
-    let top = rects[i].y, bottom = rects[i].y + rects[i].h;
-    if (right >= x
-      && left <= x
-      && bottom >= y
-      && top <= y) {
-      isCollision = rects[i];
-    }
-  }
-  return isCollision;
+export const colors: Record<string, string> = {
+  '0': '',
+  'АР_Двери': '',
+  'АР_Ниши ПК': '',
+  'АР_Окна': '',
+  'АР_Офисная мебель': '',
+  'АР_Офисная мебель_Заливка РМ': '',
+  'АР_Перекрытия': '',
+  'АР_Полилинии': '',
+  'АР_Стены': '',
+  'АР_Стены_Заливка': '',
+  'ИС_Воздухораспределители': '',
+  'ИС_Оборудование': '',
+  'ИС_Отопление': '',
+  'ИС_Сантехника': '',
+  'Марки помещений': '',
+  'Невидимые линии': '',
+  'Основные надписи': ''
 }
