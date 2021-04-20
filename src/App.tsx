@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './App.css';
 
 import DxfParser from './dxf-parser/src/index';
-import { init } from './render';
+import { init } from './canvas/render';
 
 const App: React.FC = () => {
   
