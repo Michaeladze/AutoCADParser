@@ -1,4 +1,4 @@
-import { ICircleEntity, IEllipseEntity, IEntity, IVertex } from '../types/types';
+import { IArcEntity, ICircleEntity, IEllipseEntity, IEntity, IHatchEntity, IVertex } from '../types/types';
 import { calculatePoints, findRanges } from './helpers';
 import { IRanges } from '../types/helper.types';
 import * as paper from 'paper';
@@ -13,13 +13,13 @@ export function drawEntity(entity: IEntity, scale: any) {
       // console.log(entity)
       break;
     case 'ARC':
-      // console.log(entity)
+      drawArc(entity as IArcEntity, scale);
       break;
     case 'ELLIPSE':
-      // console.log(entity)
+      drawEllipse(entity as IEllipseEntity, scale);
       break;
     case 'HATCH':
-      // console.log(entity)
+      drawHatch(entity as IHatchEntity, scale)
       break;
     default:
       // console.log(entity)
@@ -29,57 +29,48 @@ export function drawEntity(entity: IEntity, scale: any) {
 
 /** Отрисовка линии */
 export function drawLine(entity: IEntity, scale: any) {
-  const points: IVertex[] = calculatePoints(entity);
-  const path = new paper.Path();
-  // @ts-ignore
-  path.strokeColor = 'black';
+  const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
+  const path = new paper.Path({
+    strokeColor: 'black'
+  });
   
   points.forEach((point: IVertex) => {
     path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
   });
 }
 
-export function drawCircle(entity: ICircleEntity, ctx: CanvasRenderingContext2D, scale: any) {
-  const dx = entity.position?.x || 0;
-  const dy = entity.position?.y || 0;
-  
-  const cx = scale.x(dx + entity.center.x);
-  const cy = scale.y(dy + entity.center.y);
-  
-  console.log(entity, cx, cy)
-  
-  ctx.beginPath();
-  ctx.arc(cx, cy, 5, 0, 2 * Math.PI, false);
-  ctx.stroke();
+export function drawArc(entity: IArcEntity, scale: any) {
+  // const path = new paper.Path.Arc({
+  //   from: [20, 20],
+  //   through: [60, 20],
+  //   to: [80, 80],
+  //   strokeColor: 'black'
+  // });
 }
 
-export function drawEllipse(entity: IEllipseEntity, ctx: CanvasRenderingContext2D, scale: any) {
-  console.log(entity);
-  if (!entity.radius) {
-    return;
-  }
-  const x = scale.x(entity.position.x + entity.center.x);
-  const y = scale.y(entity.position.y + entity.center.y);
-  const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
-  
-  ctx.ellipse(x, y, entity.radius, entity.radius, angle, entity.startAngle, entity.endAngle);
-  ctx.strokeStyle = 'crimson';
-  ctx.stroke();
-  ctx.strokeStyle = 'black';
+export function drawEllipse(entity: IEllipseEntity, scale: any) {
+  // const x = scale.x(entity.position.x + entity.center.x);
+  // const y = scale.y(entity.position.y + entity.center.y);
+  // const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
+  //
+  // const path = new paper.Path.Ellipse({
+  //   point: [x, y],
+  //   size: [180, 60],
+  //   fillColor: 'black'
+  // });
 }
 
-export function createPolygon(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any) {
-  const points: IVertex[] = calculatePoints(entity);
-  // @ts-ignore
-  const { xDomain, yDomain }: IRanges = findRanges([{ vertices: points }]);
+export function drawHatch(entity: IHatchEntity, scale: any) {
+  entity.boundaries.forEach((boundary: IVertex[]) => {
+    const path = new paper.Path({
+      strokeColor: 'black',
+      fillColor: 'black'
+    });
   
-  const x = xDomain[0];
-  const y = yDomain[0];
-  const w = xDomain[1] - xDomain[0];
-  const h = yDomain[1] - yDomain[0];
-  
-  ctx.rect(x, y, w, h);
-  ctx.stroke();
-  
-  return { x, y, w, h, entity }
+    const points: IVertex[] = calculatePoints(boundary);
+    
+    points.forEach((point: IVertex) => {
+      path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
+    });
+  })
 }

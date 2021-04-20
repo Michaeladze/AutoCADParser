@@ -1,25 +1,24 @@
 import { IDxf, IEntity, IVertex } from '../types/types';
 import * as d3 from 'd3';
 import { IRanges } from '../types/helper.types';
-import { ScaleLinear } from 'd3';
 
-export function calculatePoints(entity: IEntity): IVertex[] {
-  if (!entity?.vertices) {
+export function calculatePoints(vertices: IVertex[], position?: IVertex, rotation?: number): IVertex[] {
+  if (!vertices) {
     return [];
   }
   
   let points: IVertex[] = [];
-  const dx = entity.position?.x || 0;
-  const dy = entity.position?.y || 0;
+  const dx = position?.x || 0;
+  const dy = position?.y || 0;
   
-  entity.vertices.forEach((v: IVertex) => {
+  vertices.forEach((v: IVertex) => {
     const x = v.x + dx;
     const y = v.y + dy;
     
     points.push({ x, y, z: 0 });
   });
   
-  const angle = entity.rotation ? entity.rotation * Math.PI / 180 : 0;
+  const angle = rotation ? rotation * Math.PI / 180 : 0;
   points = points.map((p: IVertex) => rotatePoint({ x: dx, y: dy, z: 0 }, angle, p));
   
   return points;

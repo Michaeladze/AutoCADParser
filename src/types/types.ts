@@ -49,6 +49,29 @@ export interface IEllipseEntity extends IEntity {
   startAngle: number;
 }
 
+export interface IArcEntity extends IEntity {
+  angleLength: number;
+  center: IVertex;
+  endAngle: number;
+  position: IVertex;
+  radius: number;
+  rotation: number;
+  startAngle: number;
+}
+
+export interface IHatchEntity extends IEntity {
+  associativity: false
+  boundaries: IVertex[][];
+  boundaryPathsCount: number;
+  elevationX: number;
+  extrusionDirectionX: number;
+  extrusionDirectionY: number;
+  extrusionDirectionZ: number;
+  position: IVertex;
+  seedPointsCount: number;
+  solidFill: boolean;
+}
+
 export interface IVertex {
   x: number;
   y: number;
