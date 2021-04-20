@@ -1,41 +1,42 @@
 import { ICircleEntity, IEllipseEntity, IEntity, IVertex } from '../types/types';
 import { calculatePoints, findRanges } from './helpers';
 import { IRanges } from '../types/helper.types';
+import * as paper from 'paper';
 
-export function drawAll(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any) {
+export function drawEntity(entity: IEntity, scale: any) {
   switch (entity.type) {
     case 'LINE':
     case 'LWPOLYLINE':
-      drawLine(entity, ctx, scale);
+      drawLine(entity, scale);
       break;
     case 'CIRCLE':
-      // console.log(blockEntity)
+      // console.log(entity)
       break;
     case 'ARC':
-      // console.log(blockEntity)
+      // console.log(entity)
       break;
     case 'ELLIPSE':
-      // console.log(blockEntity)
+      // console.log(entity)
+      break;
+    case 'HATCH':
+      // console.log(entity)
       break;
     default:
-      // console.log(blockEntity)
+      // console.log(entity)
       break;
   }
 }
 
 /** Отрисовка линии */
-export function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, isArm?: boolean) {
-  const points: IVertex[] = calculatePoints(entity, scale);
+export function drawLine(entity: IEntity, scale: any) {
+  const points: IVertex[] = calculatePoints(entity);
+  const path = new paper.Path();
+  // @ts-ignore
+  path.strokeColor = 'black';
   
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  
-  ctx.strokeStyle = 'black';
-  ctx.stroke();
+  points.forEach((point: IVertex) => {
+    path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
+  });
 }
 
 export function drawCircle(entity: ICircleEntity, ctx: CanvasRenderingContext2D, scale: any) {
@@ -68,7 +69,7 @@ export function drawEllipse(entity: IEllipseEntity, ctx: CanvasRenderingContext2
 }
 
 export function createPolygon(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any) {
-  const points: IVertex[] = calculatePoints(entity, scale);
+  const points: IVertex[] = calculatePoints(entity);
   // @ts-ignore
   const { xDomain, yDomain }: IRanges = findRanges([{ vertices: points }]);
   

@@ -2061,11 +2061,6 @@
   dependencies:
     "@types/jest" "*"
 
-"@types/three@^0.127.1":
-  version "0.127.1"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.127.1.tgz#0978054e5daa6485946a3f1518a76412186ae81f"
-  integrity sha512-e90iYq3zde3axANg7BPZY0fKrez1AzveamIIFk23PMh9WtCx91geokDy+yEAIymdIldgUpvezAP6+zCV3oekXw==
-
 "@types/uglify-js@*":
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-3.12.0.tgz#2bb061c269441620d46b946350c8f16d52ef37c5"
@@ -8273,6 +8268,11 @@ pako@~1.0.5:
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
+paper@^0.12.15:
+  version "0.12.15"
+  resolved "https://registry.yarnpkg.com/paper/-/paper-0.12.15.tgz#28b5e5ce0f7a99a851e980f6715f376881dfbc84"
+  integrity sha512-9qqtcY+V0Sd2RTLZKh7rTfWDbhfitOrtq3kzgOufhGpuYpCUXM+3UIK61au14tI0F9NA4xSttDYfk376O50aPA==
+
 parallel-transform@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/parallel-transform/-/parallel-transform-1.2.0.tgz#9049ca37d6cb2182c3b1d2c720be94d14a5814fc"
@@ -10934,11 +10934,6 @@ three-dxf@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/three-dxf/-/three-dxf-1.0.1.tgz#a06db8fe8103625e8eeb74d415a11aa94944ab14"
   integrity sha512-Fzs40X26BARpyFy90UzsHLFBpKWlKaZfVEM9L+6XhXYtS4zdwVf+1sZrYvvJrM/Xw/1M6KbJaAxp8LCnRAIYKw==
-
-three@^0.127.0:
-  version "0.127.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.127.0.tgz#c463f4d41b2c735dcf8e9e51a388815e80cd3791"
-  integrity sha512-wtgrn+mhYUbobxT7QN3GPdu3SRpSBQvwY6uOzLChWS7QE//f7paDU/+wlzbg+ngeIvBBqjBHSRuywTh8A99Jng==
 
 throat@^5.0.0:
   version "5.0.0"
