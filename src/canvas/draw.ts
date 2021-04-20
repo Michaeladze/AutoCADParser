@@ -4,6 +4,10 @@ import * as paper from 'paper';
 
 
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
+  if (entity.layer === 'Основные надписи') {
+    return;
+  }
+  
   switch (entity.type) {
     case 'LINE':
     case 'LWPOLYLINE':

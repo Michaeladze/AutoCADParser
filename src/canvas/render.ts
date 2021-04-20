@@ -1,7 +1,8 @@
 import { IDxf, IEntity } from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
-import { getScales } from './helpers';
+import { findRanges, getScales } from './helpers';
+import { IRanges } from '../types/helper.types';
 
 export const init = (dxf: IDxf) => {
   console.log(dxf);
@@ -12,11 +13,14 @@ export const init = (dxf: IDxf) => {
   }
   
   paper.setup(canvas);
-  const scale = getScales(dxf, window.innerWidth, window.innerHeight);
-
+  const ranges: IRanges = findRanges(dxf.entities);
+  const { xDomain, yDomain } = ranges;
+  const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
+  const scale = getScales(ranges, window.innerHeight * ratio, window.innerHeight);
+  
   dxf.entities.forEach((entity: IEntity) => {
       if (entity.type === 'INSERT' && entity.name) {
-
+        
         const block = dxf.blocks[entity.name];
         if (block && block.entities) {
           block.entities.forEach((be: IEntity) => {

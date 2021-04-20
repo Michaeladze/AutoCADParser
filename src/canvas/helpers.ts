@@ -27,13 +27,11 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
 }
 
 /** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
-export function getScales(data: IDxf, width: number, height: number) {
+export function getScales(ranges: IRanges, width: number, height: number) {
   const x = d3.scaleLinear().range([0, width]);
   const y = d3.scaleLinear().range([height, 0]);
-  
-  const { xDomain, yDomain }: IRanges = findRanges(data.entities);
-  x.domain(xDomain);
-  y.domain(yDomain);
+  x.domain(ranges.xDomain);
+  y.domain(ranges.yDomain);
   
   return { x, y }
 }
