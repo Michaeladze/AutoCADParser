@@ -73,12 +73,9 @@ export const init = (dxf: IDxf) => {
     canvas.addEventListener('click', (e) => {
       const rect = collides(rectangles, e.offsetX, e.offsetY);
       if (rect) {
-        console.log(rect.entity.name)
-        console.log(rect.entity.id)
+        console.log('Название:', rect.entity.name)
+        console.log('ID:', rect.entity.id)
         console.log('Комната: ', rect.entity.parentId);
-        ctx.fillStyle = 'red';
-        ctx.fill();
-        ctx.fillStyle = 'black';
       }
     }, false);
   }
