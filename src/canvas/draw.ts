@@ -1,4 +1,4 @@
-import { IArcEntity, IEllipseEntity, IEntity, IHatchEntity, IVertex } from '../types/types';
+import { IArcEntity, IEllipseEntity, IEntity, IHatchEntity, ITextEntity, IVertex } from '../types/types';
 import { calculatePoints } from './helpers';
 import * as paper from 'paper';
 
@@ -26,6 +26,7 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
       drawHatch(entity as IHatchEntity, scale, !!insert)
       break;
     case 'MTEXT':
+      drawText(entity as ITextEntity, scale);
       break;
     default:
       // console.log(entity)
@@ -157,4 +158,12 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
       }
     }
   })
+}
+
+export function drawText(entity: ITextEntity, scale: any) {
+  // const text = new paper.PointText({
+  //   point: [scale.x(entity.position.x), scale.y(entity.position.y)],
+  //   content: 'test',
+  //   fillColor: 'black',
+  // });
 }
