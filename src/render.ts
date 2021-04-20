@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { IDxf, IEntity, IVertex } from './types/types';
+import { ICircleEntity, IDxf, IEllipseEntity, IEntity, IVertex } from './types/types';
 import { IRanges } from './types/helper.types';
 
 const rectangles: any = [];
@@ -31,6 +31,7 @@ export const init = (dxf: IDxf) => {
   
   dxf.entities.forEach((e: IEntity) => {
       if (e.type === 'INSERT' && e.name) {
+        
         const block = dxf.blocks[e.name];
         if (block && block.entities) {
           const isArm = e.name?.includes('Стол_Рабочее');
@@ -45,28 +46,39 @@ export const init = (dxf: IDxf) => {
               }
               return acc;
             }, { ...e });
-            
-            drawLine(blockEntity, ctx, scale, isArm);
-          } else {
-            block.entities.forEach((be: IEntity) => {
-              const blockEntity: IEntity = {
-                ...be,
-                name: e.name,
-                position: e.position,
-                rotation: e.rotation
-              };
-              
-              switch (be.type) {
-                case 'LINE':
-                case 'LWPOLYLINE':
-                  drawLine(blockEntity, ctx, scale);
-                  break;
-                default:
-                  break;
-              }
-              
-            })
+  
+            const rect = createPolygon(blockEntity, ctx, scale);
+            rectangles.push(rect);
           }
+  
+          block.entities.forEach((be: IEntity) => {
+            const blockEntity: IEntity = {
+              ...be,
+              name: e.name,
+              position: e.position,
+              rotation: e.rotation
+            };
+    
+            switch (be.type) {
+              case 'LINE':
+              case 'LWPOLYLINE':
+                drawLine(blockEntity, ctx, scale);
+                break;
+              case 'CIRCLE':
+                // console.log(blockEntity)
+                break;
+              case 'ARC':
+                // console.log(blockEntity)
+                break;
+              case 'ELLIPSE':
+                // console.log(blockEntity)
+                break;
+              default:
+                // console.log(blockEntity)
+                break;
+            }
+    
+          })
         }
       } else if (e.type === 'LINE' || e.type === 'LWPOLYLINE') {
         if (e.layer !== 'Основные надписи') {
@@ -83,18 +95,17 @@ export const init = (dxf: IDxf) => {
       if (rect) {
         console.log(rect.entity.name)
         console.log(rect.entity.id)
-        console.log('Комната: ', rect.entity.parentId)
+        console.log('Комната: ', rect.entity.parentId);
       }
-    });
+    }, false);
   }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** Отрисовка линии */
-function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, isArm?: boolean) {
+function calculatePoints(entity: IEntity, scale: any): IVertex[] {
   if (!entity?.vertices) {
-    return;
+    return [];
   }
   
   let points: IVertex[] = [];
@@ -111,6 +122,13 @@ function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, is
   const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
   points = points.map((p: IVertex) => rotatePoint({ x: scale.x(dx), y: scale.y(dy), z: 0 }, angle, p));
   
+  return points;
+}
+
+/** Отрисовка линии */
+function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, isArm?: boolean) {
+  const points: IVertex[] = calculatePoints(entity, scale);
+  
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
   
@@ -118,12 +136,7 @@ function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, is
     ctx.lineTo(points[i].x, points[i].y);
   }
   
-  if (isArm) {
-    const rect = createPolygon(points, ctx, entity);
-    rectangles.push(rect);
-  }
-  
-  ctx.strokeStyle = isArm ? 'blue' : 'black';
+  ctx.strokeStyle = 'black';
   ctx.stroke();
 }
 
@@ -138,6 +151,19 @@ function drawLine(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any, is
 //
 //   ctx.beginPath();
 //   ctx.arc(cx, cy, 5, 0, 2 * Math.PI, false);
+//   ctx.stroke();
+// }
+//
+// function drawEllipse(entity: IEllipseEntity, ctx: CanvasRenderingContext2D, scale: any) {
+//   console.log(entity);
+//   if (!entity.radius) {
+//     return;
+//   }
+//   const x = scale.x(entity.position.x + entity.center.x);
+//   const y = scale.y(entity.position.y + entity.center.y);
+//   const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
+//
+//   ctx.ellipse(x, y, entity.radius, entity.radius, angle, entity.startAngle, entity.endAngle);
 //   ctx.strokeStyle = 'crimson';
 //   ctx.stroke();
 //   ctx.strokeStyle = 'black';
@@ -213,7 +239,8 @@ function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVertex {
 }
 
 
-function createPolygon(points: IVertex[], ctx: CanvasRenderingContext2D, entity: IEntity) {
+function createPolygon(entity: IEntity, ctx: CanvasRenderingContext2D, scale: any) {
+  const points: IVertex[] = calculatePoints(entity, scale);
   // @ts-ignore
   const { xDomain, yDomain }: IRanges = findRanges([{ vertices: points }]);
   
@@ -223,12 +250,7 @@ function createPolygon(points: IVertex[], ctx: CanvasRenderingContext2D, entity:
   const h = yDomain[1] - yDomain[0];
   
   ctx.rect(x, y, w, h);
-  ctx.fillStyle = 'blue';
-  ctx.strokeStyle = 'white'
-  ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = 'black';
-  ctx.strokeStyle = 'black';
   
   return { x, y, w, h, entity }
 }
