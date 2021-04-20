@@ -19,7 +19,9 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
   });
   
   const angle = rotation ? rotation * Math.PI / 180 : 0;
-  points = points.map((p: IVertex) => rotatePoint({ x: dx, y: dy, z: 0 }, angle, p));
+  if (angle) {
+    points = points.map((p: IVertex) => rotatePoint({ x: dx, y: dy, z: 0 }, angle, p));
+  }
   
   return points;
 }
