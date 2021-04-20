@@ -28,8 +28,8 @@ export const init = (dxf: IDxf) => {
               position: entity.position,
               rotation: entity.rotation
             };
-
-            drawEntity(blockEntity, scale);
+            
+            drawEntity(blockEntity, scale, true);
           })
         }
       } else {

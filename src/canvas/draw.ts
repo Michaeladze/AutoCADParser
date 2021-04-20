@@ -2,11 +2,11 @@ import { IArcEntity, IEllipseEntity, IEntity, IHatchEntity, IVertex } from '../t
 import { calculatePoints } from './helpers';
 import * as paper from 'paper';
 
-export function drawEntity(entity: IEntity, scale: any) {
+export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
   switch (entity.type) {
     case 'LINE':
     case 'LWPOLYLINE':
-      // drawLine(entity, scale);
+      drawLine(entity, scale);
       break;
     case 'CIRCLE':
       // console.log(entity)
@@ -18,7 +18,7 @@ export function drawEntity(entity: IEntity, scale: any) {
       // drawEllipse(entity as IEllipseEntity, scale);
       break;
     case 'HATCH':
-      drawHatch(entity as IHatchEntity, scale)
+      drawHatch(entity as IHatchEntity, scale, !!insert)
       break;
     default:
       // console.log(entity)
@@ -59,7 +59,7 @@ export function drawEllipse(entity: IEllipseEntity, scale: any) {
   // });
 }
 
-export function drawHatch(entity: IHatchEntity, scale: any) {
+export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
       strokeColor: 'black'
@@ -69,7 +69,10 @@ export function drawHatch(entity: IHatchEntity, scale: any) {
       acc = [...acc, ...v]
       return acc;
     }, []);
-    const points: IVertex[] = calculatePoints(flat);
+    
+    const points: IVertex[] = insert ?
+      calculatePoints(flat, entity.position, entity.rotation) :
+      calculatePoints(flat);
     
     points.forEach((point: IVertex) => {
       path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
