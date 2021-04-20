@@ -72,6 +72,13 @@ export interface IHatchEntity extends IEntity {
   solidFill: boolean;
 }
 
+export interface ITextEntity extends IEntity {
+  text: string;
+  width: number;
+  height: number;
+  position: IVertex;
+}
+
 export interface IVertex {
   x: number;
   y: number;
