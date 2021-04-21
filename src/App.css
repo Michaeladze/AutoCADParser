@@ -26,3 +26,8 @@ html, body {
   image-rendering: -webkit-crisp-edges; /* Webkit (Safari) */
   image-rendering: pixelated;           /* Chrome */
 }
+
+.stage {
+  width: 100%;
+  height: 100%;
+}

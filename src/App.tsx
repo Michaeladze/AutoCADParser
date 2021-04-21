@@ -3,6 +3,7 @@ import './App.css';
 
 import DxfParser from './dxf-parser/src/index';
 import { init } from './canvas/render';
+import TransformLayer from './TransformLayer/TransformLayer';
 
 const App: React.FC = () => {
   
@@ -12,7 +13,7 @@ const App: React.FC = () => {
       .then(({ data }) => {
         const parser = new DxfParser();
         const dxf: any = parser.parseSync(data);
-  
+        
         dxf.entities.forEach((e: any) => {
           if (e.type === 'INSERT') {
             dxf.blocks[e.name].id = e.id;
@@ -25,8 +26,7 @@ const App: React.FC = () => {
   }, []);
   
   return (
-    <div className='app'>
-      {/* @ts-ignore */}
+    <div className="app">
       <canvas id="canvas" data-paper-resize="true"/>
     </div>
   );

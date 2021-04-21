@@ -1,6 +1,6 @@
 import paper from 'paper';
 
-class SimplePanAndZoom {
+export class SimplePanAndZoom {
   changeZoom(oldZoom: number, delta: number) {
     const factor = 1.05;
     if (delta < 0) return oldZoom * factor
