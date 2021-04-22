@@ -6,6 +6,7 @@ import * as paper from 'paper';
 
 
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
+  // ===============================LAYERS==================================================================================================
   if (
     // ~entity.layer.indexOf('0')
     ~entity.layer.indexOf('Основные') ||
@@ -14,13 +15,16 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
     // ||  ~entity.layer.indexOf('Окна')
     ~entity.layer.indexOf('Ниши') ||
     ~entity.layer.indexOf('Невид') ||
-    ~entity.layer.indexOf('Марк') ||
-    ~entity.layer.indexOf('Сант')
+    // ~entity.layer.indexOf('Марк') ||
+    ~entity.layer.indexOf('Сант') ||
+    entity.layer === 'AP_Стены'
+
 
   ) {
     return;
   }
 
+  // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
   case 'LWPOLYLINE':
@@ -43,7 +47,7 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
     drawHatch(entity as IHatchEntity, scale, !!insert);
     break;
   case 'MTEXT':
-    drawText(entity as ITextEntity, scale);
+    drawText(entity as ITextEntity, scale, !!insert);
     break;
   default:
     // console.log(entity)
@@ -51,7 +55,7 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
   }
 }
 
-/** Отрисовка линии */
+// ==================================== Отрисовка линии ====================================================================================
 export function drawLine(entity: IEntity, scale: any) {
   const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
   const path = new paper.Path({ strokeColor: 'black' });
@@ -60,7 +64,7 @@ export function drawLine(entity: IEntity, scale: any) {
     path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
   });
 }
-
+// ==================================== Отрисовка арки======================================================================================
 function calcArc(angle:number, entity:IArcEntity, insert: boolean) {
   const firstX = Math.cos(angle) * entity.radius + entity.center.x;
   const firstY = Math.sin(angle) * entity.radius + entity.center.y;
@@ -193,7 +197,47 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
   });
 }
 
-export function drawText(entity: ITextEntity, scale: any) {
+let t = 0;
+
+export function drawText(entity: ITextEntity, scale: any, insert = false) {
+  function unicodeToChar(text:string) {
+    return text.replace(
+      /\\u[\dA-F]{4}/gi,
+      (match) => {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+      }
+    );
+  }
+
+  if (insert) {
+    debugger;
+  }
+
+  if (t < 6000000) {
+    // console.log(entity);
+    const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
+    const p = calculatePoints([
+      {
+        x: entity.position.x,
+        y: entity.position.y,
+        z: 0
+      }
+    ])[0];
+
+    const text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+').join('u').replace(/\"/g, '\\"') + '"'));
+
+
+    new paper.PointText({
+      point: [scale.x(p.x), scale.y(p.y)],
+      content: text,
+      fillColor: 'black',
+      fontFamily: 'Courier New',
+      fontWeight: 'bold',
+      fontSize: entity.height / 30
+    });
+  }
+
+  t += 1;
   // const text = new paper.PointText({
   //   point: [scale.x(entity.position.x), scale.y(entity.position.y)],
   //   content: 'test',

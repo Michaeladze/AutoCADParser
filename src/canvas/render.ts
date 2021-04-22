@@ -5,6 +5,29 @@ import paper from 'paper';
 import { drawEntity } from './draw';
 import { findRanges, getScales } from './helpers';
 import { IRanges } from '../types/helper.types';
+// функция ищет пуфы и стулья и заменяет их на кружки
+function replaceWorkPlaces(entity: IEntity, scale:any) {
+  const puf = entity.name && ~entity.name.toLowerCase().indexOf('пуф');
+  const armchair = entity.name && ~entity.name.toLowerCase().indexOf('кресло');
+  const chair = entity.name && ~entity.name.toLowerCase().indexOf('стул');
+
+  if (armchair || chair || puf) {
+    const en = entity as IArcEntity;
+    en.type = 'CIRCLE';
+    en.color = 'lightgray';
+    en.radius = 200;
+    en.center = {
+      x: 0,
+      y: chair ? -200 : 0,
+      z: 0
+    };
+    drawEntity(en, scale, true);
+    return true;
+  }
+
+  return false;
+}
+
 
 export const init = (dxf: IDxf) => {
   console.log(dxf);
@@ -16,57 +39,45 @@ export const init = (dxf: IDxf) => {
   }
 
   paper.setup(canvas);
-
+  // ===================================================================================================================
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
   const scale = getScales(ranges, window.innerHeight * ratio, window.innerHeight);
 
   dxf.entities.forEach((entity: IEntity) => {
-    if ((entity.name && ~entity.name.toLowerCase().indexOf('кресло')) ||
-   (entity.name && ~entity.name.toLowerCase().indexOf('пуф'))
+    // если рабочее место, то заменяем его на кружок
+    const WorkPlace = replaceWorkPlaces(entity, scale);
 
-    ) {
-      entity.type = 'CIRCLE';
+    // иначе обрабатываем entity
+    if (!WorkPlace) {
 
-      const en = entity as IArcEntity;
-      en.color = ~entity.name.toLowerCase().indexOf('пуф') ? 'lightgray' : 'green';
-      en.radius = 200;
-      en.center = {
-        x: 0,
-        y: 0,
-        z: 0
-      };
-      drawEntity(en, scale, true);
-    } else
-    if (entity.type === 'INSERT' && entity.name) {
+      if ( entity.type === 'INSERT' && entity.name) {
+        const block = dxf.blocks[entity.name];
 
-      const block = dxf.blocks[entity.name];
+        if (block && block.entities) {
+          block.entities.forEach((be: IEntity) => {
+            const blockEntity: IEntity = {
+              ...be,
+              name: entity.name,
+              id: entity.id,
+              parentId: entity.parentId,
+              position: entity.position,
+              rotation: entity.rotation
+            };
 
-      if (block && block.entities) {
-        block.entities.forEach((be: IEntity) => {
-          const blockEntity: IEntity = {
-            ...be,
-            name: entity.name,
-            id: entity.id,
-            parentId: entity.parentId,
-            position: entity.position,
-            rotation: entity.rotation
-          };
-
-
-          if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-
-            blockEntity.type === 'HATCH' && drawEntity(blockEntity, scale, true);
-          } else {
-            drawEntity(blockEntity, scale, true);
-          }
-
-
-        });
+            // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
+            if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
+              ['HATCH', 'MTEXT'].includes(blockEntity.type) && drawEntity(blockEntity, scale, true);
+            } else {
+              drawEntity(blockEntity, scale, true);
+            }
+          });
+        }
+      } else {
+        // сюда проваливаемся если отрисовываем примитив
+        drawEntity(entity, scale);
       }
-    } else {
-      drawEntity(entity, scale);
     }
   });
 };

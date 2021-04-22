@@ -665,14 +665,19 @@ DxfParser.prototype._parse = function (dxfString) {
     while (true) {
 
       if (curr.code === 0 || curr.code === 1) {
+        console.log(curr.value)
         if (curr.value === endingOnValue) {
           break;
         }
 
         var entity;
+        if(entity && entity.type==='INSERT'){
+          debugger
+        }
         var handler = self._entityHandlers[curr.value];
 
         if (curr.code === 1 && curr.value.split('-').length === 4) {
+
           const pointer = curr;
 
           for (let i = 0; i <= 5; i++) {
