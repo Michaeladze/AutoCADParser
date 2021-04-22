@@ -57,6 +57,7 @@ export interface IArcEntity extends IEntity {
   radius: number;
   rotation: number;
   startAngle: number;
+  color?:string
 }
 
 export interface IHatchEntity extends IEntity {

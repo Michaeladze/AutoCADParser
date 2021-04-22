@@ -3,13 +3,20 @@ import paper from 'paper';
 export class SimplePanAndZoom {
   changeZoom(oldZoom: number, delta: number) {
     const factor = 1.05;
-    if (delta < 0) return oldZoom * factor
-    if (delta > 0) return oldZoom / factor
-    return oldZoom
+
+    if (delta < 0) {
+      return oldZoom * factor;
+    }
+
+    if (delta > 0) {
+      return oldZoom / factor;
+    }
+
+    return oldZoom;
   }
-  
+
   changeCenter(oldCenter: any, deltaX:number, deltaY:number, factor: number) {
-    let offset = new paper.Point(deltaX, -deltaY)
+    let offset = new paper.Point(deltaX, -deltaY);
     offset = offset.multiply(factor);
     oldCenter.add(offset);
   }

@@ -13,4 +13,8 @@ app.get('/getData', (req, res) => {
   })
 })
 
-app.listen(4300);
+
+app.listen(4300, () => {
+  console.log(`Сервер взлетел`);
+
+});
