@@ -9,16 +9,14 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
   // ===============================LAYERS==================================================================================================
   if (
     // ~entity.layer.indexOf('0')
-    ~entity.layer.indexOf('Основные') ||
-    ~entity.layer.indexOf('Отопление') ||
-    ~entity.layer.indexOf('Воздух') ||
-    // ||  ~entity.layer.indexOf('Окна')
-    ~entity.layer.indexOf('Ниши') ||
-    ~entity.layer.indexOf('Невид') ||
-    // ~entity.layer.indexOf('Марк') ||
-    ~entity.layer.indexOf('Сант') ||
-    entity.layer === 'AP_Стены'
-
+    !(~entity.layer.toLowerCase().indexOf('стены') ||
+     ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
+      ~entity.layer.toLowerCase().indexOf('двери') ||
+      ~entity.layer.toLowerCase().indexOf('полилинии') ||
+      ~entity.layer.toLowerCase().indexOf('0') ||
+      // ~entity.layer.toLowerCase().indexOf('помещений') ||
+      ~entity.layer.toLowerCase().indexOf('перекрытия')
+    )
 
   ) {
     return;
@@ -47,6 +45,7 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
     drawHatch(entity as IHatchEntity, scale, !!insert);
     break;
   case 'MTEXT':
+
     drawText(entity as ITextEntity, scale, !!insert);
     break;
   default:
@@ -197,50 +196,28 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
   });
 }
 
-let t = 0;
 
 export function drawText(entity: ITextEntity, scale: any, insert = false) {
-  function unicodeToChar(text:string) {
-    return text.replace(
-      /\\u[\dA-F]{4}/gi,
-      (match) => {
-        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
-      }
-    );
+
+
+  let text = entity.text;
+  try {
+    text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+')
+      .join('u')
+      .replace(/\"/g, '\\"') + '"'));
+  } catch (e) {
+
   }
-
-  if (insert) {
-    debugger;
-  }
-
-  if (t < 6000000) {
-    // console.log(entity);
-    const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
-    const p = calculatePoints([
-      {
-        x: entity.position.x,
-        y: entity.position.y,
-        z: 0
-      }
-    ])[0];
-
-    const text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+').join('u').replace(/\"/g, '\\"') + '"'));
+  console.log(entity.position.y);
+  console.log(scale.y(entity.position.y));
+  new paper.PointText({
+    point: [scale.x(entity.position.x), scale.y(entity.position.y)],
+    content: text,
+    fillColor: 'black',
+    fontFamily: 'Courier New',
+    fontWeight: 'bold',
+    fontSize: scale.scale(entity.height)
+  });
 
 
-    new paper.PointText({
-      point: [scale.x(p.x), scale.y(p.y)],
-      content: text,
-      fillColor: 'black',
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: entity.height / 30
-    });
-  }
-
-  t += 1;
-  // const text = new paper.PointText({
-  //   point: [scale.x(entity.position.x), scale.y(entity.position.y)],
-  //   content: 'test',
-  //   fillColor: 'black',
-  // });
 }

@@ -1,9 +1,9 @@
 import {
-  IArcEntity, IDxf, IEntity
+  IArcEntity, IDxf, IEntity, ITextEntity, IVertex
 } from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
-import { findRanges, getScales } from './helpers';
+import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
 // функция ищет пуфы и стулья и заменяет их на кружки
 function replaceWorkPlaces(entity: IEntity, scale:any) {
@@ -27,7 +27,16 @@ function replaceWorkPlaces(entity: IEntity, scale:any) {
 
   return false;
 }
+function drawNumbers(entity: IEntity, scale:any, number:{point:IVertex, text:string, fontSize:number}) {
+  const en = { ...entity } as ITextEntity;
+  en.text = number.text;
+  en.position = number.point;
+  en.type = 'MTEXT';
+  en.height = number.fontSize;
+  // debugger;
+  drawEntity(en, scale, false);
 
+}
 
 export const init = (dxf: IDxf) => {
   console.log(dxf);
@@ -43,7 +52,7 @@ export const init = (dxf: IDxf) => {
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const scale = getScales(ranges, window.innerHeight * ratio, window.innerHeight);
+  const scale = getScales_my(ranges, window.innerHeight * ratio, window.innerHeight);
 
   dxf.entities.forEach((entity: IEntity) => {
     // если рабочее место, то заменяем его на кружок
@@ -54,6 +63,11 @@ export const init = (dxf: IDxf) => {
 
       if ( entity.type === 'INSERT' && entity.name) {
         const block = dxf.blocks[entity.name];
+
+        if (entity.attr && entity.attr['номер']) {
+          drawNumbers(entity, scale, entity.attr['номер'] );
+
+        }
 
         if (block && block.entities) {
           block.entities.forEach((be: IEntity) => {
@@ -68,7 +82,7 @@ export const init = (dxf: IDxf) => {
 
             // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
             if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-              ['HATCH', 'MTEXT'].includes(blockEntity.type) && drawEntity(blockEntity, scale, true);
+              ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, true);
             } else {
               drawEntity(blockEntity, scale, true);
             }

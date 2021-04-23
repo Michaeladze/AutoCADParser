@@ -21,6 +21,8 @@ export interface IEntity {
     applicationName: string;
     customStrings: string[]
   };
+  attr?: {
+    [key:string]:{point:IVertex, text:string, fontSize:number} } ;
   handle: string;
   layer: string;
   ownerHandle: string;

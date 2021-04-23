@@ -656,44 +656,75 @@ DxfParser.prototype._parse = function (dxfString) {
    */
   var parseEntities = function (forBlock) {
     var entities = [];
+    var isAttr=false;
+    var attr= {point:{}} ;
+
 
     var endingOnValue = forBlock ? 'ENDBLK' : 'ENDSEC';
 
     if (!forBlock) {
       curr = scanner.next();
     }
-    while (true) {
 
+    while (true) {
+      //=====================================================================================================================================
+      curr.value ==='ATTRIB'&&(isAttr=true);
+
+      if(isAttr) {
+        !(entity.attr) &&(entity.attr={})
+
+        switch (curr.code){
+        case 10:
+          attr.point.x=curr.value;
+          break;
+        case 20:
+          attr.point.y=curr.value;
+          break;
+        case 30:
+          attr.point.z=curr.value;
+          break;
+          case 40:
+          attr.fontSize=curr.value;
+          break;
+        case 2:
+          entity.attr[curr.value.toLowerCase()]=attr
+          attr= {point:{}}
+          isAttr=false
+          break;
+        case 1:
+          attr.text=curr.value;
+          break;
+        }
+      }
+      //====================================================================================================================================
       if (curr.code === 0 || curr.code === 1) {
-        console.log(curr.value)
+        // console.log(curr.value)
+
         if (curr.value === endingOnValue) {
           break;
         }
-
         var entity;
-        if(entity && entity.type==='INSERT'){
-          debugger
-        }
         var handler = self._entityHandlers[curr.value];
 
-        if (curr.code === 1 && curr.value.split('-').length === 4) {
 
-          const pointer = curr;
-
-          for (let i = 0; i <= 5; i++) {
-            if (curr.code === 2) {
-              if (curr.value === 'Ключ') {
-                entity.id = pointer.value;
-                break;
-              }
-              if (curr.value === 'Родительский ключ') {
-                entity.parentId = pointer.value;
-                break;
-              }
-            }
-            curr = scanner.next();
-          }
-        }
+        // if (curr.code === 1 && curr.value.split('-').length === 4) {
+        //
+        //   const pointer = curr;
+        //
+        //   for (let i = 0; i <= 5; i++) {
+        //     if (curr.code === 2) {
+        //       if (curr.value === 'Ключ') {
+        //         entity.id = pointer.value;
+        //         break;
+        //       }
+        //       if (curr.value === 'Родительский ключ') {
+        //         entity.parentId = pointer.value;
+        //         break;
+        //       }
+        //     }
+        //     curr = scanner.next();
+        //   }
+        // }
 
         if (handler != null) {
           log.debug(curr.value + ' {');

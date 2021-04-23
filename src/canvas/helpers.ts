@@ -1,5 +1,4 @@
 import { IEntity, IVertex } from '../types/types';
-import * as d3 from 'd3';
 import { IRanges } from '../types/helper.types';
 
 export function calculatePoints(vertices: IVertex[], position?: IVertex, rotation?: number): IVertex[] {
@@ -35,18 +34,30 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
   return points;
 }
 
-/** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
-export function getScales(ranges: IRanges, width: number, height: number) {
-  const x = d3.scaleLinear().range([0, width]);
-  const y = d3.scaleLinear().range([height, 0]);
-  x.domain(ranges.xDomain);
-  y.domain(ranges.yDomain);
+export const getScales_my = (ranges: IRanges, width: number, height: number) => ({
+  x: (c:number ) => (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
+  y: (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
+  scale: (c:number) => {
+    const ratio = width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
+    return width * ratio / 4.5;
+  }
+});
 
-  return {
-    x,
-    y
-  };
-}
+// /** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
+// export function getScales(ranges: IRanges, width: number, height: number) {
+//   const x = d3.scaleLinear().range([0, width]);
+//   const y = d3.scaleLinear().range([height, 0]);
+//
+//
+//   x.domain(ranges.xDomain);
+//   y.domain(ranges.yDomain);
+//
+//
+//   return {
+//     x,
+//     y
+//   };
+// }
 
 /** Поиск диапазонов по осям X и Y */
 export function findRanges(entities: IEntity[]): IRanges {
