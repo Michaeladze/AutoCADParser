@@ -43,6 +43,12 @@ export const getScales_my = (ranges: IRanges, width: number, height: number) => 
   }
 });
 
+
+export const getColor = () => {
+  const colors = ['#FAE9E2', ];
+
+
+};
 // /** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
 // export function getScales(ranges: IRanges, width: number, height: number) {
 //   const x = d3.scaleLinear().range([0, width]);

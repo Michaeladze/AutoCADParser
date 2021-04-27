@@ -3,30 +3,51 @@ import {
 } from '../types/types';
 import { calculatePoints } from './helpers';
 import * as paper from 'paper';
+import { RandomColor } from '../dxf-parser/src/colors';
+
+const changePolyline = (entity:IHatchEntity) => {
+
+  entity.boundaries = [[]];
+
+  let start:IVertex|undefined;
+  let end:IVertex|undefined;
+
+
+  for (let i = 0; i < entity.vertices.length; i++) {
+    if (!start) {
+      start = entity.vertices[i];
+      continue;
+    }
+
+    if (!end) {
+      end = entity.vertices[i];
+      entity.boundaries[0].push([start, end]);
+      start = entity.vertices[i];
+      end = undefined;
+    }
+
+  }
+
+  entity.boundaries[0].push([start as IVertex, entity.vertices[0]]);
+  entity.color = new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d';
+
+  return entity;
+};
 
 
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
-  // ===============================LAYERS==================================================================================================
-  if (
-    // ~entity.layer.indexOf('0')
-    !(~entity.layer.toLowerCase().indexOf('стены') ||
-     ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
-      ~entity.layer.toLowerCase().indexOf('двери') ||
-      ~entity.layer.toLowerCase().indexOf('полилинии') ||
-      ~entity.layer.toLowerCase().indexOf('0') ||
-      // ~entity.layer.toLowerCase().indexOf('помещений') ||
-      ~entity.layer.toLowerCase().indexOf('перекрытия')
-    )
-
-  ) {
-    return;
-  }
 
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
-  case 'LWPOLYLINE':
+
     drawLine(entity, scale);
+    break;
+  case 'LWPOLYLINE':
+
+    drawHatch( changePolyline(entity as IHatchEntity), scale, !!insert);
+
+
     break;
   case 'CIRCLE':
     const en = entity as IArcEntity;
@@ -42,6 +63,7 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
     // drawEllipse(entity as IEllipseEntity, scale);
     break;
   case 'HATCH':
+
     drawHatch(entity as IHatchEntity, scale, !!insert);
     break;
   case 'MTEXT':
@@ -146,7 +168,7 @@ let hoverEntity: any = undefined;
 export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
-      fillColor: 'rgb(147, 149, 152)',
+      fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
       strokeColor: 'rgb(147, 149, 152)'
     });
 
@@ -208,8 +230,8 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   } catch (e) {
 
   }
-  console.log(entity.position.y);
-  console.log(scale.y(entity.position.y));
+  console.log(text);
+
   new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],
     content: text,

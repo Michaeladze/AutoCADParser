@@ -5,7 +5,20 @@ import paper from 'paper';
 import { drawEntity } from './draw';
 import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
+
+const layers = (entity:IEntity) => !(
+  ~entity.layer.toLowerCase().indexOf('стены') ||
+  ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
+  ~entity.layer.toLowerCase().indexOf('двери') ||
+  ~entity.layer.toLowerCase().indexOf('полилинии') ||
+// ~entity.layer.toLowerCase().indexOf('0') ||
+// ~entity.layer.toLowerCase().indexOf('помещений') ||
+~entity.layer.toLowerCase().indexOf('перекрытия')
+);
+
+
 // функция ищет пуфы и стулья и заменяет их на кружки
+
 function replaceWorkPlaces(entity: IEntity, scale:any) {
   const puf = entity.name && ~entity.name.toLowerCase().indexOf('пуф');
   const armchair = entity.name && ~entity.name.toLowerCase().indexOf('кресло');
@@ -33,7 +46,7 @@ function drawNumbers(entity: IEntity, scale:any, number:{point:IVertex, text:str
   en.position = number.point;
   en.type = 'MTEXT';
   en.height = number.fontSize;
-  // debugger;
+
   drawEntity(en, scale, false);
 
 }
@@ -55,6 +68,10 @@ export const init = (dxf: IDxf) => {
   const scale = getScales_my(ranges, window.innerHeight * ratio, window.innerHeight);
 
   dxf.entities.forEach((entity: IEntity) => {
+    if (layers(entity)) {
+      return;
+    }
+
     // если рабочее место, то заменяем его на кружок
     const WorkPlace = replaceWorkPlaces(entity, scale);
 
@@ -89,7 +106,12 @@ export const init = (dxf: IDxf) => {
           });
         }
       } else {
-        // сюда проваливаемся если отрисовываем примитив
+
+        if (entity.type === 'MTEXT') {
+          entity.position?.y ? entity.position.y = entity.position.y - 200 : entity.position?.y;
+        }
+
+        console.log(entity);
         drawEntity(entity, scale);
       }
     }

@@ -73,6 +73,7 @@ export interface IHatchEntity extends IEntity {
   position: IVertex;
   seedPointsCount: number;
   solidFill: boolean;
+  color?:string
 }
 
 export interface ITextEntity extends IEntity {
