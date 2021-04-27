@@ -230,7 +230,7 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   } catch (e) {
 
   }
-  console.log(text);
+  // console.log(text);
 
   new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],

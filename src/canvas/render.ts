@@ -61,6 +61,31 @@ export const init = (dxf: IDxf) => {
   }
 
   paper.setup(canvas);
+  paper.view.onMouseUp = (event:any) => {
+    paper.view.center = paper.view.center.subtract(event.delta);
+  };
+  const ZOOM_FACTOR = 1.5;
+  canvas.addEventListener('wheel', (event) => {
+    console.log('!');
+    const oldZoom = paper.view.zoom;
+    const oldCenter = paper.view.center;
+
+    // Get mouse position.
+    // It needs to be converted into project coordinates system.
+    const mousePosition = paper.view.viewToProject(new paper.Point(event.offsetX, event.offsetY));
+
+    // Update view zoom.
+    const newZoom = event.deltaY > 0 ?
+      oldZoom * ZOOM_FACTOR :
+      oldZoom / ZOOM_FACTOR;
+    paper.view.zoom = newZoom;
+
+    // Update view position.
+    // @ts-ignore
+    // paper.view.center += (mousePosition - oldCenter) * (1 - (oldZoom / newZoom));
+  });
+
+
   // ===================================================================================================================
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
@@ -111,7 +136,7 @@ export const init = (dxf: IDxf) => {
           entity.position?.y ? entity.position.y = entity.position.y - 200 : entity.position?.y;
         }
 
-        console.log(entity);
+        // console.log(entity);
         drawEntity(entity, scale);
       }
     }
