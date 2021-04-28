@@ -29,6 +29,7 @@ export interface IEntity {
   type: string;
   vertices: IVertex[];
   id?: string;
+  height?:number;
   parentId?: string;
   name?: string;
   position?: IVertex;

@@ -38,8 +38,10 @@ export const getScales_my = (ranges: IRanges, width: number, height: number) => 
   x: (c:number ) => (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
   y: (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
   scale: (c:number) => {
-    const ratio = width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
-    return width * ratio / 4.5;
+
+    const ratio = height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]);
+
+    return c * ratio * 1.35;
   }
 });
 

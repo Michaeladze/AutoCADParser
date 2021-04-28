@@ -35,7 +35,7 @@ export const init = (dxf: IDxf) => {
         // ...update view center.
         paper.view.center = event.downPoint.subtract(event.point).add(paper.view.center);
       };
-    const ZOOM_FACTOR = 1.1;
+    const ZOOM_FACTOR = 1.08;
     canvas.addEventListener('wheel', (event) => {
     const oldZoom = paper.view.zoom;
     const oldCenter = paper.view.center;
@@ -76,6 +76,7 @@ export const init = (dxf: IDxf) => {
 
 
         if (entity.attr && entity.attr['номер'] ) {
+
           drawNumbers(entity, scale, entity.attr['номер'] );
         }
 
@@ -101,12 +102,9 @@ export const init = (dxf: IDxf) => {
       } else {
 
         if (entity.type === 'MTEXT') {
-
-
-          entity.position?.y ? entity.position.y = entity.position.y - 250 : entity.position?.y;
+          entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0 ) : entity.position?.y;
         }
 
-        // console.log(entity);
         drawEntity(entity, scale);
       }
     }

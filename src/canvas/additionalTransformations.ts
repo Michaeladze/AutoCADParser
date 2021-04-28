@@ -39,7 +39,7 @@ export const drawNumbers = (entity: IEntity, scale:any, number:{point:IVertex, t
   en.text = number.text;
   en.position = number.point;
   en.type = 'MTEXT';
-  en.height = number.fontSize;
+  en.height = number.fontSize + 20;
 
 
   drawEntity(en, scale, false);

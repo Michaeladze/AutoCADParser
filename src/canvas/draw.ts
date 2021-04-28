@@ -209,12 +209,9 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
     }
   });
 }
-// @ts-ignore
-// let t1 = 0;
-
+const t = 0;
 
 export function drawText(entity: ITextEntity, scale: any, insert = false) {
-
 
   let text = entity.text;
   try {
@@ -224,22 +221,20 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   } catch (e) {
 
   }
-  // console.log(text);
 
-  // if ([1, 8, 13].includes(t1)) {
-
-
+  // if (t < 1) {
+  //   console.log(`${scale.scale(300)}px`, 300, `${300 * 0.031}px`);
+  //   console.log(`${scale.scale(200)}px`, 200, `${200 * 0.031}px`);
   new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],
     content: text,
     fillColor: 'black',
-    fontFamily: 'Courier New',
-    fontWeight: 'bold',
-    fontSize: scale.scale(entity.height)
+    fontFamily: 'Roboto',
+    fontWeight: 'normal',
+    fontSize: `${scale.scale(entity.height)}px`
   });
-
-
-  // t1 += 1;
+  //   t += 1;
+  // }
 }
 
 export function drawRect(entity: IHatchEntity, scale: any) {
