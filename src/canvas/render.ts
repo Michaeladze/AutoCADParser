@@ -6,6 +6,7 @@ import { IRanges } from '../types/helper.types';
 import { drawNumbers, replaceWorkPlaces } from './additionalTransformations';
 
 export const statistics:any = {};
+export const statisticsFull:any = {};
 const layers = (entity:IEntity) => !(
   // ~entity.layer.toLowerCase().indexOf('стены') ||
   // ~entity.layer.toLowerCase().indexOf('окна') ||
@@ -110,5 +111,6 @@ export const init = (dxf: IDxf) => {
   });
   console.warn('================================STATISTICS==================================');
   console.log(statistics);
+  console.log(statisticsFull);
   console.warn('============================================================================');
 };

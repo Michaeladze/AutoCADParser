@@ -5,12 +5,14 @@ import { calculatePoints, findRanges } from './helpers';
 import * as paper from 'paper';
 import { IRanges } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
-import { statistics } from './render';
+import { statistics, statisticsFull } from './render';
 
 
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : ( statistics[entity.type] = 1);
+  statisticsFull[entity.type + '/' + entity.layer] ? (statisticsFull[entity.type + '/' + entity.layer] += 1) : ( statisticsFull[entity.type + '/' + entity.layer] = 1);
+
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
