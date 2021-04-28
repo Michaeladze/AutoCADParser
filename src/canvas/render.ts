@@ -5,7 +5,7 @@ import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
 import { drawNumbers, replaceWorkPlaces } from './additionalTransformations';
 
-
+export const statistics:any = {};
 const layers = (entity:IEntity) => !(
   // ~entity.layer.toLowerCase().indexOf('стены') ||
   // ~entity.layer.toLowerCase().indexOf('окна') ||
@@ -21,7 +21,6 @@ const layers = (entity:IEntity) => !(
 
 
 export const init = (dxf: IDxf) => {
-  // console.log(dxf);
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -30,7 +29,7 @@ export const init = (dxf: IDxf) => {
   }
 
   paper.setup(canvas);
-  const t = paper.PaperScript.execute(`
+  paper.PaperScript.execute(`
       function onMouseDrag(event) {
         // ...update view center.
         paper.view.center = event.downPoint.subtract(event.point).add(paper.view.center);
@@ -75,7 +74,7 @@ export const init = (dxf: IDxf) => {
         const block = dxf.blocks[entity.name];
 
 
-        if (entity.attr && entity.attr['номер'] ) {
+        if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
 
           drawNumbers(entity, scale, entity.attr['номер'] );
         }
@@ -109,4 +108,7 @@ export const init = (dxf: IDxf) => {
       }
     }
   });
+  console.warn('================================STATISTICS==================================');
+  console.log(statistics);
+  console.warn('============================================================================');
 };

@@ -3,41 +3,14 @@ import {
 } from '../types/types';
 import { calculatePoints, findRanges } from './helpers';
 import * as paper from 'paper';
-import { RandomColor } from '../dxf-parser/src/colors';
 import { IRanges } from '../types/helper.types';
-
-const changePolyline = (entity:IHatchEntity) => {
-
-  entity.boundaries = [[]];
-
-  let start:IVertex|undefined;
-  let end:IVertex|undefined;
-
-
-  for (let i = 0; i < entity.vertices.length; i++) {
-    if (!start) {
-      start = entity.vertices[i];
-      continue;
-    }
-
-    if (!end) {
-      end = entity.vertices[i];
-      entity.boundaries[0].push([start, end]);
-      start = entity.vertices[i];
-      end = undefined;
-    }
-
-  }
-
-  entity.boundaries[0].push([start as IVertex, entity.vertices[0]]);
-  entity.color = new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d';
-
-  return entity;
-};
+import { changePolyline } from './additionalTransformations';
+import { statistics } from './render';
 
 
 export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
 
+  statistics[entity.type] ? (statistics[entity.type] += 1) : ( statistics[entity.type] = 1);
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
