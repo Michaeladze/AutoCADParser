@@ -1,9 +1,10 @@
 import {
   IArcEntity, IEllipseEntity, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
-import { calculatePoints } from './helpers';
+import { calculatePoints, findRanges } from './helpers';
 import * as paper from 'paper';
 import { RandomColor } from '../dxf-parser/src/colors';
+import { IRanges } from '../types/helper.types';
 
 const changePolyline = (entity:IHatchEntity) => {
 
@@ -166,6 +167,11 @@ let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
 export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
+  if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
+    drawRect(entity, scale);
+    return;
+  }
+
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
       fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
@@ -242,4 +248,29 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   });
 
 
+}
+
+export function drawRect(entity: IHatchEntity, scale: any) {
+  const vertices: IVertex[] = [];
+  entity.boundaries.forEach((boundary: IVertex[][]) => {
+    boundary.forEach((points: IVertex[]) => {
+      points.forEach((p: IVertex) => {
+        vertices.push(p);
+      });
+    });
+  });
+
+  const points: IVertex[] = calculatePoints(vertices, entity.position, entity.rotation);
+  // @ts-ignore
+  const { xDomain, yDomain }: IRanges = findRanges([{ vertices: points }]);
+
+  const x = scale.x(xDomain[0]);
+  const y = scale.y(yDomain[0]);
+  const w = scale.x(xDomain[1]) - scale.x(xDomain[0]);
+  const h = scale.y(yDomain[1]) - scale.y(yDomain[0]);
+
+  const rect = new paper.Rectangle(x, y, w, h);
+  const path = new paper.Path.Rectangle(rect);
+  // @ts-ignore
+  path.strokeColor = 'rgb(147, 149, 152)';
 }
