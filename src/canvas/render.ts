@@ -1,58 +1,27 @@
-import {
-  IArcEntity, IDxf, IEntity, ITextEntity, IVertex
-} from '../types/types';
+import { IDxf, IEntity } from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
 import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
+import { drawNumbers, replaceWorkPlaces } from './additionalTransformations';
+
 
 const layers = (entity:IEntity) => !(
-  ~entity.layer.toLowerCase().indexOf('стены') ||
-  ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
+  // ~entity.layer.toLowerCase().indexOf('стены') ||
+  // ~entity.layer.toLowerCase().indexOf('окна') ||
+  ~entity.layer.toLowerCase().indexOf('стены_заливка') ||
+   ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
   ~entity.layer.toLowerCase().indexOf('двери') ||
-  ~entity.layer.toLowerCase().indexOf('полилинии') ||
-// ~entity.layer.toLowerCase().indexOf('0') ||
-// ~entity.layer.toLowerCase().indexOf('помещений') ||
-~entity.layer.toLowerCase().indexOf('перекрытия')
+  ~entity.layer.toLowerCase().indexOf('помещений') ||
+  ~entity.layer.toLowerCase().indexOf('перекрытия') ||
+  // ~entity.layer.toLowerCase().indexOf('сант') ||
+
+  ~entity.layer.toLowerCase().indexOf('полилинии')
 );
 
 
-// функция ищет пуфы и стулья и заменяет их на кружки
-
-function replaceWorkPlaces(entity: IEntity, scale:any) {
-  const puf = entity.name && ~entity.name.toLowerCase().indexOf('пуф');
-  const armchair = entity.name && ~entity.name.toLowerCase().indexOf('кресло');
-  const chair = entity.name && ~entity.name.toLowerCase().indexOf('стул');
-
-  if (armchair || chair || puf) {
-    const en = entity as IArcEntity;
-    en.type = 'CIRCLE';
-    en.color = 'lightgray';
-    en.radius = 200;
-    en.center = {
-      x: 0,
-      y: chair ? -200 : 0,
-      z: 0
-    };
-    drawEntity(en, scale, true);
-    return true;
-  }
-
-  return false;
-}
-function drawNumbers(entity: IEntity, scale:any, number:{point:IVertex, text:string, fontSize:number}) {
-  const en = { ...entity } as ITextEntity;
-  en.text = number.text;
-  en.position = number.point;
-  en.type = 'MTEXT';
-  en.height = number.fontSize;
-
-  drawEntity(en, scale, false);
-
-}
-
 export const init = (dxf: IDxf) => {
-  console.log(dxf);
+  // console.log(dxf);
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -61,19 +30,18 @@ export const init = (dxf: IDxf) => {
   }
 
   paper.setup(canvas);
-  paper.view.onMouseUp = (event:any) => {
-    paper.view.center = paper.view.center.subtract(event.delta);
-  };
-  const ZOOM_FACTOR = 1.5;
-  canvas.addEventListener('wheel', (event) => {
-    console.log('!');
+  const t = paper.PaperScript.execute(`
+      function onMouseDrag(event) {
+        // ...update view center.
+        paper.view.center = event.downPoint.subtract(event.point).add(paper.view.center);
+      };
+    const ZOOM_FACTOR = 1.1;
+    canvas.addEventListener('wheel', (event) => {
     const oldZoom = paper.view.zoom;
     const oldCenter = paper.view.center;
-
     // Get mouse position.
     // It needs to be converted into project coordinates system.
     const mousePosition = paper.view.viewToProject(new paper.Point(event.offsetX, event.offsetY));
-
     // Update view zoom.
     const newZoom = event.deltaY > 0 ?
       oldZoom * ZOOM_FACTOR :
@@ -81,9 +49,9 @@ export const init = (dxf: IDxf) => {
     paper.view.zoom = newZoom;
 
     // Update view position.
-    // @ts-ignore
-    // paper.view.center += (mousePosition - oldCenter) * (1 - (oldZoom / newZoom));
+    paper.view.center += (mousePosition - oldCenter) * (1 - (oldZoom / newZoom));
   });
+  `, paper);
 
 
   // ===================================================================================================================
@@ -92,23 +60,23 @@ export const init = (dxf: IDxf) => {
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
   const scale = getScales_my(ranges, window.innerHeight * ratio, window.innerHeight);
 
-  dxf.entities.forEach((entity: IEntity) => {
+  const actEntities = dxf.entities.filter((en) => !layers(en));
+  console.log(actEntities);
+  actEntities.forEach((entity: IEntity) => {
     if (layers(entity)) {
       return;
     }
 
     // если рабочее место, то заменяем его на кружок
-    const WorkPlace = replaceWorkPlaces(entity, scale);
-
     // иначе обрабатываем entity
-    if (!WorkPlace) {
+    if (!replaceWorkPlaces(entity, scale)) {
 
       if ( entity.type === 'INSERT' && entity.name) {
         const block = dxf.blocks[entity.name];
 
-        if (entity.attr && entity.attr['номер']) {
-          drawNumbers(entity, scale, entity.attr['номер'] );
 
+        if (entity.attr && entity.attr['номер'] ) {
+          drawNumbers(entity, scale, entity.attr['номер'] );
         }
 
         if (block && block.entities) {
@@ -133,7 +101,9 @@ export const init = (dxf: IDxf) => {
       } else {
 
         if (entity.type === 'MTEXT') {
-          entity.position?.y ? entity.position.y = entity.position.y - 200 : entity.position?.y;
+
+
+          entity.position?.y ? entity.position.y = entity.position.y - 250 : entity.position?.y;
         }
 
         // console.log(entity);

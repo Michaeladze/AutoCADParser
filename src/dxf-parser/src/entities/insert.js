@@ -10,7 +10,7 @@ EntityParser.prototype.parseEntity = function(scanner, curr) {
     entity = { type: curr.value };
     curr = scanner.next();
     while(curr !== 'EOF') {
-        if(curr.code === 0) break;
+        if(curr.code === 0 ) break;
 
         switch(curr.code) {
             case 2:

@@ -1,5 +1,5 @@
 import {
-  IArcEntity, IEllipseEntity, IEntity, IHatchEntity, ITextEntity, IVertex
+  IArcEntity, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
 import { calculatePoints, findRanges } from './helpers';
 import * as paper from 'paper';
@@ -148,20 +148,6 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean) {
 
 }
 
-export function drawEllipse(entity: IEllipseEntity, scale: any) {
-
-
-  // console.log("!!!!!!!!!!!!!!!!",entity)
-  // const x = scale.x(entity.position.x + entity.center.x);
-  // const y = scale.y(entity.position.y + entity.center.y);
-  // const angle = entity.rotation ? -entity.rotation * Math.PI / 180 : 0;
-  //
-  // const path = new paper.Path.Ellipse({
-  //   point: [x, y],
-  //   size: [180, 60],
-  //   fillColor: 'black'
-  // });
-}
 
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
@@ -223,6 +209,8 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
     }
   });
 }
+// @ts-ignore
+// let t1 = 0;
 
 
 export function drawText(entity: ITextEntity, scale: any, insert = false) {
@@ -238,6 +226,9 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   }
   // console.log(text);
 
+  // if ([1, 8, 13].includes(t1)) {
+
+
   new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],
     content: text,
@@ -248,6 +239,7 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   });
 
 
+  // t1 += 1;
 }
 
 export function drawRect(entity: IHatchEntity, scale: any) {

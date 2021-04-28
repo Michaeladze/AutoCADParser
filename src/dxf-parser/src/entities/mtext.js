@@ -6,17 +6,20 @@ export default function EntityParser() {}
 EntityParser.ForEntityName = 'MTEXT';
 
 EntityParser.prototype.parseEntity = function(scanner, curr) {
-    var entity = { type: curr.value };
+    var entity = { type: curr.value ,text:''};
 		curr = scanner.next();
+
+
     while(curr !== 'EOF') {
         if(curr.code === 0) break;
 
         switch(curr.code) {
             case 3:
-                entity.text ? entity.text += curr.value : entity.text = curr.value;
+                entity.text += curr.value
                 break;
             case 1:
-                entity.text ? entity.text += curr.value : entity.text = curr.value;
+
+                entity.text += (~curr.value.indexOf('|')|| ~curr.value.indexOf('/'))?'':curr.value
                 break;
             case 10:
                 entity.position = helpers.parsePoint(scanner);
@@ -43,5 +46,7 @@ EntityParser.prototype.parseEntity = function(scanner, curr) {
         }
         curr = scanner.next();
     }
+
+
     return entity;
 };
