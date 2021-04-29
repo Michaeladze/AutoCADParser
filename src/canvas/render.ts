@@ -75,11 +75,15 @@ export const init = (dxf: IDxf) => {
   // const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
 
   console.log(actEntities);
+  const places = actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'));
+
+  // findZonesOfWorkPlaces(actEntities);
 
   actEntities.forEach((entity: IEntity) => {
     if (validLayer(entity)) {
       return;
     }
+
 
     // если рабочее место, то заменяем его на кружок
     // иначе обрабатываем entity
@@ -130,7 +134,7 @@ export const init = (dxf: IDxf) => {
           entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0) : entity.position?.y;
         }
 
-        drawEntity(entity, scale, layers);
+        drawEntity(entity, scale, layers, false, places);
       }
     }
   });

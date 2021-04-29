@@ -18,8 +18,7 @@ EntityParser.prototype.parseEntity = function(scanner, curr) {
                 entity.text += curr.value
                 break;
             case 1:
-
-                entity.text += (~curr.value.indexOf('|')|| ~curr.value.indexOf('/'))?'':curr.value
+                entity.text+=~curr.value.indexOf('|')?curr.value.split(';')[1]:curr.value
                 break;
             case 10:
                 entity.position = helpers.parsePoint(scanner);

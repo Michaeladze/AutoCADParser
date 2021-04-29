@@ -7,7 +7,7 @@ import { IRanges } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
 import { statistics, statisticsFull } from './render';
 
-export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean) {
+export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean, entities?:IEntity[]) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
   statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
@@ -18,7 +18,7 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
     drawLine(entity, scale);
     break;
   case 'LWPOLYLINE':
-    drawHatch(changePolyline(entity as IHatchEntity), scale, !!insert, layers);
+    drawHatch(changePolyline(entity as IHatchEntity, entities), scale, !!insert, layers);
     break;
   case 'CIRCLE':
     const en = entity as IArcEntity;
@@ -231,6 +231,7 @@ export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string
 
   const rect = new paper.Rectangle(x, y, w, h);
   const path = new paper.Path.Rectangle(rect);
+
   // @ts-ignore
   path.strokeColor = 'rgb(147, 149, 152)';
 

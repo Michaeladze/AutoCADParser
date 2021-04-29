@@ -24,7 +24,7 @@ export const replaceWorkPlaces = (entity: IEntity, scale:any, layers: Record<str
     en.radius = 200;
     en.center = {
       x: 0,
-      y: chair ? -200 : 0,
+      y: 0,
       z: 0
     };
     drawEntity(en, scale, layers, true);
@@ -50,7 +50,7 @@ export const drawNumbers = (
 };
 // =========================================================================================================================================
 /** превращает полилайн в hatch*/
-export const changePolyline = (entity:IHatchEntity) => {
+export const changePolyline = (entity:IHatchEntity, entities?:IEntity[]) => {
 
   entity.boundaries = [[]];
 
@@ -74,7 +74,21 @@ export const changePolyline = (entity:IHatchEntity) => {
   }
 
   entity.boundaries[0].push([start as IVertex, entity.vertices[0]]);
-  entity.color = new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d';
+  const path = new paper.Path();
+  entity.vertices.forEach(it => {
+
+    path.add(new paper.Point(it.x, it.y));
+  });
+  path.closePath();
+
+
+  entities?.forEach((pl) => {
+    const point = new paper.Point(pl.position?.x || 0, pl.position?.y || 0);
+    path.contains(point) && (entity.handle = 'place');
+  });
+
+
+  entity.color = entity.handle === 'place' ? new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d' : '#ffffff00';
 
   return entity;
 };
