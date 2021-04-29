@@ -9,8 +9,8 @@ import { statistics, statisticsFull } from './render';
 
 export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean) {
 
-  statistics[entity.type] ? (statistics[entity.type] += 1) : ( statistics[entity.type] = 1);
-  statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : ( statisticsFull[entity.layer + '/' + entity.type] = 1);
+  statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
+  statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
   statisticsFull['count'] ? statisticsFull['count'] += 1 : statisticsFull['count'] = 1;
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
@@ -18,7 +18,7 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
     drawLine(entity, scale);
     break;
   case 'LWPOLYLINE':
-    drawHatch( changePolyline(entity as IHatchEntity), scale, !!insert, layers);
+    drawHatch(changePolyline(entity as IHatchEntity), scale, !!insert, layers);
     break;
   case 'CIRCLE':
     const en = entity as IArcEntity;
@@ -49,6 +49,7 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
     break;
   }
 }
+
 // =========================================================================================================================================
 // =========================================================================================================================================
 // =========================================================================================================================================
@@ -61,8 +62,9 @@ export function drawLine(entity: IEntity, scale: any) {
     path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
   });
 }
+
 // ==================================== Отрисовка арки======================================================================================
-function calcArc(angle:number, entity:IArcEntity, insert: boolean) {
+function calcArc(angle: number, entity: IArcEntity, insert: boolean) {
   const firstX = Math.cos(angle) * entity.radius + entity.center.x;
   const firstY = Math.sin(angle) * entity.radius + entity.center.y;
   return !insert ?
@@ -121,6 +123,7 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers:
 
   layers.items.addChild(arc);
 }
+
 // =========================================================================================================================================
 export function drawPath(entity: IEntity, scale: any, insert: boolean) {
   const path = new paper.Path({
@@ -137,6 +140,7 @@ export function drawPath(entity: IEntity, scale: any, insert: boolean) {
   });
 
 }
+
 // =========================================================================================================================================
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
@@ -175,6 +179,7 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
     layers.items.addChild(path);
   });
 }
+
 const t = 0;
 
 // =========================================================================================================================================
@@ -200,8 +205,9 @@ export function drawText(entity: ITextEntity, scale: any, insert = false, layers
   });
 
 
-  layers.items.addChild(point);
+  layers.text.addChild(point);
 }
+
 // =========================================================================================================================================
 export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string, paper.Layer>) {
 
@@ -253,4 +259,5 @@ export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string
 
   layers.clickable.addChild(path);
 }
+
 // =========================================================================================================================================

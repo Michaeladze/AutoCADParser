@@ -60,6 +60,7 @@ export const init = (dxf: IDxf) => {
   /** Создаем слои */
   const layers: Record<string, paper.Layer> = {
     clickable: new paper.Layer(),
+    text: new paper.Layer(),
     items: new paper.Layer()
   };
 
@@ -135,6 +136,8 @@ export const init = (dxf: IDxf) => {
   });
 
   layers.clickable.bringToFront();
+  layers.text.bringToFront();
+
   console.warn('================================STATISTICS==================================');
   console.log(statistics);
   console.log(statisticsFull);
