@@ -4,7 +4,7 @@ import { drawEntity } from './draw';
 import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
 import {
-  drawNumbers, replaceWorkPlaces, simplifyBlock
+  checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
 } from './additionalTransformations';
 
 export const statistics: any = {};
@@ -87,55 +87,47 @@ export const init = (dxf: IDxf) => {
 
     // если рабочее место, то заменяем его на кружок
     // иначе обрабатываем entity
+    if (entity.type === 'INSERT' && entity.name) {
+      const block = dxf.blocks[entity.name];
 
-    if (!replaceWorkPlaces(entity, scale, layers)) {
-
-
-      if (entity.type === 'INSERT' && entity.name) {
-        const block = dxf.blocks[entity.name];
-
-
-        if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
-
-
-          drawNumbers(entity, scale, entity.attr['номер'], layers);
-
-        }
-
-        if (block && block.entities) {
-
-
-          // if ( entity.handle === '878D') {
-
-          block.entities = simplifyBlock(block.entities.filter(i => !!i));
-          // }
-
-          block.entities.forEach((be: IEntity) => {
-            const blockEntity: IEntity = {
-              ...be,
-              name: entity.name,
-              id: entity.id,
-              parentId: entity.parentId,
-              position: entity.position,
-              rotation: entity.rotation
-            };
-
-            // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
-            if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-              ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, true);
-            } else {
-              drawEntity(blockEntity, scale, layers, true);
-            }
-          });
-        }
-      } else {
-
-        if (entity.type === 'MTEXT') {
-          entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0) : entity.position?.y;
-        }
-
-        drawEntity(entity, scale, layers, false, places);
+      if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
+        drawNumbers(entity, scale, entity.attr['номер'], layers);
       }
+
+      if (block && block.entities) {
+        block.entities = simplifyBlock(block.entities.filter(i => !!i));
+
+        /** Сидячие места обрабатываются отдельно */
+        if (checkSeats(entity)) {
+          replaceWorkPlaces(entity, block, scale, layers);
+          return;
+        }
+
+        block.entities.forEach((be: IEntity) => {
+          const blockEntity: IEntity = {
+            ...be,
+            name: entity.name,
+            id: entity.id,
+            parentId: entity.parentId,
+            position: entity.position,
+            rotation: entity.rotation
+          };
+
+          // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
+          if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
+            ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, true);
+          } else {
+            drawEntity(blockEntity, scale, layers, true);
+          }
+        });
+
+      }
+    } else {
+      if (entity.type === 'MTEXT') {
+        entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0) : entity.position?.y;
+      }
+
+      drawEntity(entity, scale, layers, false, places);
     }
   });
 
