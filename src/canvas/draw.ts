@@ -7,8 +7,7 @@ import { IRanges } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
 import { statistics, statisticsFull } from './render';
 
-
-export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
+export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : ( statistics[entity.type] = 1);
   statisticsFull[entity.type + '/' + entity.layer] ? (statisticsFull[entity.type + '/' + entity.layer] += 1) : ( statisticsFull[entity.type + '/' + entity.layer] = 1);
@@ -16,23 +15,19 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
-
     drawLine(entity, scale);
     break;
   case 'LWPOLYLINE':
-
-    drawHatch( changePolyline(entity as IHatchEntity), scale, !!insert);
-
-
+    drawHatch( changePolyline(entity as IHatchEntity), scale, !!insert, layers);
     break;
   case 'CIRCLE':
     const en = entity as IArcEntity;
     en.startAngle = 0;
     en.endAngle = 1.9999 * Math.PI;
-    drawArc(en, scale, !!insert);
+    drawArc(en, scale, !!insert, layers);
     break;
   case 'ARC':
-    drawArc(entity as IArcEntity, scale, !!insert);
+    drawArc(entity as IArcEntity, scale, !!insert, layers);
     break;
   case 'ELLIPSE':
 
@@ -40,11 +35,11 @@ export function drawEntity(entity: IEntity, scale: any, insert?: boolean) {
     break;
   case 'HATCH':
 
-    drawHatch(entity as IHatchEntity, scale, !!insert);
+    drawHatch(entity as IHatchEntity, scale, !!insert, layers);
     break;
   case 'MTEXT':
 
-    drawText(entity as ITextEntity, scale, !!insert);
+    drawText(entity as ITextEntity, scale, !!insert, layers);
     break;
   default:
     // console.log(entity)
@@ -83,7 +78,7 @@ function calcArc(angle:number, entity:IArcEntity, insert: boolean) {
 }
 
 
-export function drawArc(entity: IArcEntity, scale: any, insert: boolean) {
+export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers: Record<string, paper.Layer>) {
 
 
   let mid = (entity.endAngle - entity.startAngle) / 2 + entity.startAngle;
@@ -111,25 +106,24 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean) {
   //   radius: 2,
   //   strokeColor: 'darkgray'
   // });
-  new paper.Path.Arc({
+  const arc = new paper.Path.Arc({
     from: [scale.x(start.x), scale.y(start.y)],
     through: [scale.x(middle.x), scale.y(middle.y)],
     to: [scale.x(end.x), scale.y(end.y)],
     strokeColor: 'black',
     fillColor: entity.color
-
   });
 
-
+  layers.items.addChild(arc);
 }
 
 
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
-export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
+export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, layers: Record<string, paper.Layer>) {
   if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-    drawRect(entity, scale);
+    drawRect(entity, scale, layers);
     return;
   }
 
@@ -158,35 +152,12 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean) {
       path.sendToBack();
     }
 
-    if (insert) {
-      // @ts-ignore
-      path.fillColor = 'white';
-      path.onClick = () => {
-        if (activeEntity) {
-          activeEntity.fillColor = 'white';
-        }
-
-        activeEntity = path;
-        activeEntity.fillColor = 'crimson';
-        console.log(entity);
-      };
-
-      path.onMouseEnter = () => {
-        hoverEntity = path;
-        hoverEntity.fillColor = 'teal';
-      };
-
-      path.onMouseLeave = () => {
-        if (hoverEntity && path !== activeEntity) {
-          hoverEntity.fillColor = 'white';
-        }
-      };
-    }
+    layers.items.addChild(path);
   });
 }
 const t = 0;
 
-export function drawText(entity: ITextEntity, scale: any, insert = false) {
+export function drawText(entity: ITextEntity, scale: any, insert = false, layers: Record<string, paper.Layer>) {
 
   let text = entity.text;
   try {
@@ -200,7 +171,7 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   // if (t < 1) {
   //   console.log(`${scale.scale(300)}px`, 300, `${300 * 0.031}px`);
   //   console.log(`${scale.scale(200)}px`, 200, `${200 * 0.031}px`);
-  new paper.PointText({
+  const point = new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],
     content: text,
     fillColor: 'black',
@@ -210,9 +181,11 @@ export function drawText(entity: ITextEntity, scale: any, insert = false) {
   });
   //   t += 1;
   // }
+
+  layers.items.addChild(point);
 }
 
-export function drawRect(entity: IHatchEntity, scale: any) {
+export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string, paper.Layer>) {
   const vertices: IVertex[] = [];
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     boundary.forEach((points: IVertex[]) => {
@@ -235,4 +208,29 @@ export function drawRect(entity: IHatchEntity, scale: any) {
   const path = new paper.Path.Rectangle(rect);
   // @ts-ignore
   path.strokeColor = 'rgb(147, 149, 152)';
+
+  // @ts-ignore
+  path.fillColor = 'white';
+  path.onClick = () => {
+    if (activeEntity) {
+      activeEntity.fillColor = 'white';
+    }
+
+    activeEntity = path;
+    activeEntity.fillColor = 'crimson';
+    console.log(entity);
+  };
+
+  path.onMouseEnter = () => {
+    hoverEntity = path;
+    hoverEntity.fillColor = 'teal';
+  };
+
+  path.onMouseLeave = () => {
+    if (hoverEntity && path !== activeEntity) {
+      hoverEntity.fillColor = 'white';
+    }
+  };
+
+  layers.clickable.addChild(path);
 }

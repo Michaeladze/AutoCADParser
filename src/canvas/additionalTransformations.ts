@@ -5,9 +5,10 @@ import {
 } from '../types/types';
 import { drawEntity } from './draw';
 import { RandomColor } from '../dxf-parser/src/colors';
+import paper from 'paper';
 // =========================================================================================================================================
 /** если сидячее место, то заменяем его на кружок*/
-export const replaceWorkPlaces = (entity: IEntity, scale:any) => {
+export const replaceWorkPlaces = (entity: IEntity, scale:any, layers: Record<string, paper.Layer>) => {
   const puf = entity.name && ~entity.name.toLowerCase().indexOf('пуф');
   const armchair = entity.name && ~entity.name.toLowerCase().indexOf('кресло');
   const chair = entity.name && ~entity.name.toLowerCase().indexOf('стул');
@@ -22,7 +23,7 @@ export const replaceWorkPlaces = (entity: IEntity, scale:any) => {
       y: chair ? -200 : 0,
       z: 0
     };
-    drawEntity(en, scale, true);
+    drawEntity(en, scale, layers, true);
     return true;
   }
 
@@ -30,14 +31,14 @@ export const replaceWorkPlaces = (entity: IEntity, scale:any) => {
 };
 // =========================================================================================================================================
 /** рисует цифры на рабочих местах*/
-export const drawNumbers = (entity: IEntity, scale:any, number:{point:IVertex, text:string, fontSize:number}) => {
+export const drawNumbers = (entity: IEntity, scale:any, number:{point:IVertex, text:string, fontSize:number}, layers: Record<string, paper.Layer>) => {
   const en = { ...entity } as ITextEntity;
   en.text = number.text;
   en.position = number.point;
   en.type = 'MTEXT';
   // немного увеличиваем шрифт
   en.height = number.fontSize + 20;
-  drawEntity(en, scale, false);
+  drawEntity(en, scale, layers, false);
 };
 // =========================================================================================================================================
 /** превращает полилайн в hatch*/
