@@ -1,6 +1,6 @@
 import { IEntity, IVertex } from '../types/types';
 import { IRanges } from '../types/helper.types';
-
+// =========================================================================================================================================
 export function calculatePoints(vertices: IVertex[], position?: IVertex, rotation?: number): IVertex[] {
   if (!vertices) {
     return [];
@@ -33,7 +33,7 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
 
   return points;
 }
-
+// =========================================================================================================================================
 export const getScales_my = (ranges: IRanges, width: number, height: number) => ({
   x: (c:number ) => (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
   y: (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
@@ -44,29 +44,7 @@ export const getScales_my = (ranges: IRanges, width: number, height: number) => 
     return c * ratio * 1.35;
   }
 });
-
-
-export const getColor = () => {
-  const colors = ['#FAE9E2', ];
-
-
-};
-// /** Используем функции из D3, чтобы привести координаты X и Y к значениям в пределах width и height */
-// export function getScales(ranges: IRanges, width: number, height: number) {
-//   const x = d3.scaleLinear().range([0, width]);
-//   const y = d3.scaleLinear().range([height, 0]);
-//
-//
-//   x.domain(ranges.xDomain);
-//   y.domain(ranges.yDomain);
-//
-//
-//   return {
-//     x,
-//     y
-//   };
-// }
-
+// =========================================================================================================================================
 /** Поиск диапазонов по осям X и Y */
 export function findRanges(entities: IEntity[]): IRanges {
   let minX = Number.MAX_SAFE_INTEGER;
@@ -101,7 +79,7 @@ export function findRanges(entities: IEntity[]): IRanges {
     yDomain: [minY, maxY]
   };
 }
-
+// =========================================================================================================================================
 export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVertex {
   const p = { ...point };
   const sin: number = Math.sin(angle);
@@ -118,7 +96,7 @@ export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVer
 
   return p;
 }
-
+// =========================================================================================================================================
 export const colors: Record<string, string> = {
   '0': '',
   'АР_Двери': '',

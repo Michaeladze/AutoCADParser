@@ -3,7 +3,9 @@ import paper from 'paper';
 import { drawEntity } from './draw';
 import { findRanges, getScales_my } from './helpers';
 import { IRanges } from '../types/helper.types';
-import { drawNumbers, replaceWorkPlaces } from './additionalTransformations';
+import {
+  drawNumbers, replaceWorkPlaces, simplifyBlock
+} from './additionalTransformations';
 
 export const statistics: any = {};
 export const statisticsFull: any = {};
@@ -35,7 +37,7 @@ export const init = (dxf: IDxf) => {
         // ...update view center.
         paper.view.center = event.downPoint.subtract(event.point).add(paper.view.center);
       };
-    const ZOOM_FACTOR = 1.08;
+    const ZOOM_FACTOR = 1.14;
     canvas.addEventListener('wheel', (event) => {
     const oldZoom = paper.view.zoom;
     const oldCenter = paper.view.center;
@@ -44,8 +46,8 @@ export const init = (dxf: IDxf) => {
     const mousePosition = paper.view.viewToProject(new paper.Point(event.offsetX, event.offsetY));
     // Update view zoom.
     const newZoom = event.deltaY > 0 ?
-      oldZoom * ZOOM_FACTOR :
-      oldZoom / ZOOM_FACTOR;
+      oldZoom / ZOOM_FACTOR :
+      oldZoom * ZOOM_FACTOR;
     paper.view.zoom = newZoom;
 
     // Update view position.
@@ -67,8 +69,12 @@ export const init = (dxf: IDxf) => {
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
   const scale = getScales_my(ranges, window.innerHeight * ratio, window.innerHeight);
 
-  const actEntities = dxf.entities.filter((en) => !validLayer(en));
+
+  const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
+  // const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
+
   console.log(actEntities);
+
   actEntities.forEach((entity: IEntity) => {
     if (validLayer(entity)) {
       return;
@@ -76,7 +82,9 @@ export const init = (dxf: IDxf) => {
 
     // если рабочее место, то заменяем его на кружок
     // иначе обрабатываем entity
+
     if (!replaceWorkPlaces(entity, scale, layers)) {
+
 
       if (entity.type === 'INSERT' && entity.name) {
         const block = dxf.blocks[entity.name];
@@ -84,10 +92,19 @@ export const init = (dxf: IDxf) => {
 
         if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
 
+
           drawNumbers(entity, scale, entity.attr['номер'], layers);
+
         }
 
         if (block && block.entities) {
+
+
+          // if ( entity.handle === '878D') {
+
+          block.entities = simplifyBlock(block.entities.filter(i => !!i));
+          // }
+
           block.entities.forEach((be: IEntity) => {
             const blockEntity: IEntity = {
               ...be,

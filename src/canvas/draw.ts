@@ -10,8 +10,8 @@ import { statistics, statisticsFull } from './render';
 export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : ( statistics[entity.type] = 1);
-  statisticsFull[entity.type + '/' + entity.layer] ? (statisticsFull[entity.type + '/' + entity.layer] += 1) : ( statisticsFull[entity.type + '/' + entity.layer] = 1);
-
+  statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : ( statisticsFull[entity.layer + '/' + entity.type] = 1);
+  statisticsFull['count'] ? statisticsFull['count'] += 1 : statisticsFull['count'] = 1;
   // ==========================================Отрисовка Примитивов=========================================================================
   switch (entity.type) {
   case 'LINE':
@@ -41,12 +41,17 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
 
     drawText(entity as ITextEntity, scale, !!insert, layers);
     break;
+  case 'PATH':
+    drawPath(entity as ITextEntity, scale, !!insert);
+    break;
   default:
     // console.log(entity)
     break;
   }
 }
-
+// =========================================================================================================================================
+// =========================================================================================================================================
+// =========================================================================================================================================
 // ==================================== Отрисовка линии ====================================================================================
 export function drawLine(entity: IEntity, scale: any) {
   const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
@@ -110,14 +115,29 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers:
     from: [scale.x(start.x), scale.y(start.y)],
     through: [scale.x(middle.x), scale.y(middle.y)],
     to: [scale.x(end.x), scale.y(end.y)],
-    strokeColor: 'black',
+    strokeColor: 'rgb(147, 149, 152)',
     fillColor: entity.color
   });
 
   layers.items.addChild(arc);
 }
+// =========================================================================================================================================
+export function drawPath(entity: IEntity, scale: any, insert: boolean) {
+  const path = new paper.Path({
+    // fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
+    strokeColor: 'rgb(147, 149, 152)'
+  });
 
+  const points: IVertex[] = insert ?
+    calculatePoints(entity.vertices, entity.position, entity.rotation) :
+    calculatePoints(entity.vertices);
 
+  points.forEach((point: IVertex) => {
+    path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
+  });
+
+}
+// =========================================================================================================================================
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
@@ -157,7 +177,9 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
 }
 const t = 0;
 
+// =========================================================================================================================================
 export function drawText(entity: ITextEntity, scale: any, insert = false, layers: Record<string, paper.Layer>) {
+
 
   let text = entity.text;
   try {
@@ -168,9 +190,6 @@ export function drawText(entity: ITextEntity, scale: any, insert = false, layers
 
   }
 
-  // if (t < 1) {
-  //   console.log(`${scale.scale(300)}px`, 300, `${300 * 0.031}px`);
-  //   console.log(`${scale.scale(200)}px`, 200, `${200 * 0.031}px`);
   const point = new paper.PointText({
     point: [scale.x(entity.position.x), scale.y(entity.position.y)],
     content: text,
@@ -179,13 +198,13 @@ export function drawText(entity: ITextEntity, scale: any, insert = false, layers
     fontWeight: 'normal',
     fontSize: `${scale.scale(entity.height)}px`
   });
-  //   t += 1;
-  // }
+
 
   layers.items.addChild(point);
 }
-
+// =========================================================================================================================================
 export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string, paper.Layer>) {
+
   const vertices: IVertex[] = [];
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     boundary.forEach((points: IVertex[]) => {
@@ -234,3 +253,4 @@ export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string
 
   layers.clickable.addChild(path);
 }
+// =========================================================================================================================================

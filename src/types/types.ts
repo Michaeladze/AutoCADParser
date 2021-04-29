@@ -34,6 +34,7 @@ export interface IEntity {
   name?: string;
   position?: IVertex;
   rotation?: number;
+  color?:string
 }
 
 export interface ICircleEntity extends IEntity {
@@ -60,7 +61,7 @@ export interface IArcEntity extends IEntity {
   radius: number;
   rotation: number;
   startAngle: number;
-  color?:string
+
 }
 
 export interface IHatchEntity extends IEntity {
