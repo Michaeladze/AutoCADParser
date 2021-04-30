@@ -5,11 +5,11 @@ import {
   calculatePoints, findCenter, findRanges, findRangesFromPoints
 } from './helpers';
 import * as paper from 'paper';
-import { IRanges } from '../types/helper.types';
+import { IRanges, IScale } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
 import { statistics, statisticsFull } from './render';
 
-export function drawEntity(entity: IEntity, scale: any, layers: Record<string, paper.Layer>, insert?: boolean, entities?:IEntity[]) {
+export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string, paper.Layer>, insert?: boolean, entities?:IEntity[]) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
   statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
@@ -53,7 +53,7 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
 // =========================================================================================================================================
 // ==================================== Отрисовка линии ====================================================================================
 
-export function drawLine(entity: IEntity, scale: any) {
+export function drawLine(entity: IEntity, scale: IScale) {
   const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
   const path = new paper.Path({ strokeColor: 'black' });
 
@@ -85,7 +85,7 @@ function calcArc(angle: number, entity: IArcEntity, insert: boolean) {
 }
 
 
-export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers: Record<string, paper.Layer>) {
+export function drawArc(entity: IArcEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>) {
   let mid = (entity.endAngle - entity.startAngle) / 2 + entity.startAngle;
 
   if (entity.endAngle < entity.startAngle) {
@@ -124,7 +124,7 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers:
 
 // =========================================================================================================================================
 
-export function drawPath(entity: IEntity, scale: any, insert: boolean) {
+export function drawPath(entity: IEntity, scale: IScale, insert: boolean) {
   const path = new paper.Path({ strokeColor: 'rgb(147, 149, 152)' });
 
   const points: IVertex[] = insert ?
@@ -142,7 +142,7 @@ export function drawPath(entity: IEntity, scale: any, insert: boolean) {
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
-export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, layers: Record<string, paper.Layer>) {
+export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>) {
   if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
     drawRect(entity, scale, layers);
     return;
@@ -212,7 +212,7 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
 
 // =========================================================================================================================================
 
-export function drawText(entity: ITextEntity, scale: any, insert = false, layers: Record<string, paper.Layer>) {
+export function drawText(entity: ITextEntity, scale: IScale, insert = false, layers: Record<string, paper.Layer>) {
   let text = entity.text;
   try {
     text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+')
@@ -237,7 +237,7 @@ export function drawText(entity: ITextEntity, scale: any, insert = false, layers
 
 // =========================================================================================================================================
 
-export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string, paper.Layer>) {
+export function drawRect(entity: IHatchEntity, scale: IScale, layers: Record<string, paper.Layer>) {
 
   const vertices: IVertex[] = [];
   entity.boundaries.forEach((boundary: IVertex[][]) => {

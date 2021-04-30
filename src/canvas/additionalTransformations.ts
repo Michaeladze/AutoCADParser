@@ -8,6 +8,7 @@ import { RandomColor } from '../dxf-parser/src/colors';
 
 import paper from 'paper';
 import { calculatePoints, findCenter } from './helpers';
+import { IScale } from '../types/helper.types';
 
 
 export const checkSeats = (entity: IEntity): boolean => {
@@ -18,7 +19,7 @@ export const checkSeats = (entity: IEntity): boolean => {
   return armchair || chair || puf;
 };
 
-export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: any, layers: Record<string, paper.Layer>) => {
+export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale, layers: Record<string, paper.Layer>) => {
 
   const vertices: IVertex[] = block.entities.reduce((acc: IVertex[], e: IEntity) => {
     if (e.vertices) {
@@ -42,7 +43,7 @@ export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: any, la
 // =========================================================================================================================================
 /** рисует цифры на рабочих местах*/
 export const drawNumbers = (
-  entity: IEntity, scale: any,
+  entity: IEntity, scale: IScale,
   number: { point: IVertex, text: string, fontSize: number },
   layers: Record<string, paper.Layer>
 ) => {

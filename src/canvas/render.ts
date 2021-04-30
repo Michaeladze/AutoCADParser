@@ -2,7 +2,7 @@ import { IDxf, IEntity } from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
 import { findRanges, getScales_my } from './helpers';
-import { IRanges } from '../types/helper.types';
+import { IRanges, IScale } from '../types/helper.types';
 import {
   checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
 } from './additionalTransformations';
@@ -84,8 +84,7 @@ export const init = (dxf: IDxf) => {
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const scale = getScales_my(ranges, height * ratio, height);
-
+  const scale: IScale = getScales_my(ranges, height * ratio, height);
 
   const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
   // const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));

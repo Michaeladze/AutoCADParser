@@ -1,5 +1,5 @@
 import { IEntity, IVertex } from '../types/types';
-import { IRanges } from '../types/helper.types';
+import { IRanges, IScale } from '../types/helper.types';
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-export const getScales_my = (ranges: IRanges, width: number, height: number) => ({
+export const getScales_my = (ranges: IRanges, width: number, height: number): IScale => ({
   x: (c:number ) => (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
   y: (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
   scale: (c:number) => {
@@ -96,7 +96,7 @@ export function findRangesFromPoints(points: IVertex[]): IRanges {
 
 // =========================================================================================================================================
 
-export function findCenter(points: IVertex[], scale: any): IVertex {
+export function findCenter(points: IVertex[], scale: IScale): IVertex {
   const center: IVertex = {
     x: 0,
     y: 0,
