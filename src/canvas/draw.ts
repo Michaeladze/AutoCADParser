@@ -150,7 +150,10 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
     });
 
     const flat: IVertex[] = boundary.reduce((acc: IVertex[], v: IVertex[]) => {
-      acc = [...acc, ...v];
+      if (Array.isArray(v)) {
+        acc = [...acc, ...v];
+      }
+
       return acc;
     }, []);
 
