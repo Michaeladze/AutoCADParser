@@ -2,10 +2,10 @@ import {
   IArcEntity, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
 import {
-  calculatePoints, findCenter, findRanges, findRangesFromPoints
+  calculatePoints, findCenter, findRangesFromPoints
 } from './helpers';
 import * as paper from 'paper';
-import { IRanges, IScale } from '../types/helper.types';
+import { IScale } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
 import { statistics, statisticsFull } from './render';
 
@@ -143,11 +143,6 @@ let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
 export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>) {
-  if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-    drawRect(entity, scale, layers);
-    return;
-  }
-
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
       fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
@@ -171,6 +166,39 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       // @ts-ignore
       path.fillColor = '#efefef';
       path.sendToBack();
+      return;
+    }
+
+    if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
+      // @ts-ignore
+      path.strokeColor = 'rgb(147, 149, 152)';
+      // @ts-ignore
+      path.fillColor = 'white';
+
+      path.onClick = () => {
+        if (activeEntity) {
+          activeEntity.fillColor = 'white';
+        }
+
+        activeEntity = path;
+        activeEntity.fillColor = '#00b894';
+        console.log(entity);
+      };
+
+      path.onMouseEnter = () => {
+        hoverEntity = path;
+        hoverEntity.fillColor = '#fab1a0';
+      };
+
+      path.onMouseLeave = () => {
+        if (hoverEntity && path !== activeEntity) {
+          hoverEntity.fillColor = 'white';
+        }
+      };
+
+      layers.tables.addChild(path);
+
+      return;
     }
 
     if (entity.handle === 'place') {
@@ -202,10 +230,10 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
         paper.view.center = new paper.Point(center);
         paper.view.zoom = Math.min(rx, ry);
       };
-
-    } else {
-      layers.items.addChild(path);
+      return;
     }
+
+    layers.items.addChild(path);
 
   });
 }
@@ -234,59 +262,3 @@ export function drawText(entity: ITextEntity, scale: IScale, insert = false, lay
 
   layers.text.addChild(point);
 }
-
-// =========================================================================================================================================
-
-export function drawRect(entity: IHatchEntity, scale: IScale, layers: Record<string, paper.Layer>) {
-
-  const vertices: IVertex[] = [];
-  entity.boundaries.forEach((boundary: IVertex[][]) => {
-    boundary.forEach((points: IVertex[]) => {
-      points.forEach((p: IVertex) => {
-        vertices.push(p);
-      });
-    });
-  });
-
-  const points: IVertex[] = calculatePoints(vertices, entity.position, entity.rotation);
-  // @ts-ignore
-  const { xDomain, yDomain }: IRanges = findRanges([{ vertices: points }]);
-
-  const x = scale.x(xDomain[0]);
-  const y = scale.y(yDomain[0]);
-  const w = scale.x(xDomain[1]) - scale.x(xDomain[0]);
-  const h = scale.y(yDomain[1]) - scale.y(yDomain[0]);
-
-  const rect = new paper.Rectangle(x, y, w, h);
-  const path = new paper.Path.Rectangle(rect);
-
-  // @ts-ignore
-  path.strokeColor = 'rgb(147, 149, 152)';
-
-  // @ts-ignore
-  path.fillColor = 'white';
-  path.onClick = () => {
-    if (activeEntity) {
-      activeEntity.fillColor = 'white';
-    }
-
-    activeEntity = path;
-    activeEntity.fillColor = '#00b894';
-    console.log(entity);
-  };
-
-  path.onMouseEnter = () => {
-    hoverEntity = path;
-    hoverEntity.fillColor = '#fab1a0';
-  };
-
-  path.onMouseLeave = () => {
-    if (hoverEntity && path !== activeEntity) {
-      hoverEntity.fillColor = 'white';
-    }
-  };
-
-  layers.tables.addChild(path);
-}
-
-// =========================================================================================================================================

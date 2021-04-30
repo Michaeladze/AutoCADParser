@@ -32,13 +32,11 @@ export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale,
   const points: IVertex[] = calculatePoints(vertices, entity.position, entity.rotation);
   const center: IVertex = findCenter(points, scale);
 
-  if (entity.position) {
-    new paper.Path.Circle({
-      center: [center.x, center.y],
-      radius: scale.scale(150),
-      strokeColor: 'lightgray'
-    });
-  }
+  new paper.Path.Circle({
+    center: [center.x, center.y],
+    radius: scale.scale(150),
+    strokeColor: 'lightgray'
+  });
 };
 // =========================================================================================================================================
 /** рисует цифры на рабочих местах*/
