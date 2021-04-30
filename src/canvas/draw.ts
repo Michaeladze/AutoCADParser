@@ -177,6 +177,10 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
       layers.rooms.addChild(path);
 
       path.onClick = () => {
+        // @ts-ignore
+        if (window.isDragging) {
+          return;
+        }
 
         const container = document.getElementById('canvas-container');
 

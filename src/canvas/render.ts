@@ -35,7 +35,11 @@ export const init = (dxf: IDxf) => {
 
   /** Масштабирование */
   paper.PaperScript.execute(`
+      function onMouseUp() {
+        window.isDragging = false;
+      }
       function onMouseDrag(event) {
+        window.isDragging = true;
         // ...update view center.
         paper.view.center = event.downPoint.subtract(event.point).add(paper.view.center);
       };
