@@ -12,7 +12,9 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
   statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
   statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
   statisticsFull['count'] ? statisticsFull['count'] += 1 : statisticsFull['count'] = 1;
+
   // ==========================================Отрисовка Примитивов=========================================================================
+
   switch (entity.type) {
   case 'LINE':
     drawLine(entity, scale);
@@ -30,30 +32,25 @@ export function drawEntity(entity: IEntity, scale: any, layers: Record<string, p
     drawArc(entity as IArcEntity, scale, !!insert, layers);
     break;
   case 'ELLIPSE':
-
     // drawEllipse(entity as IEllipseEntity, scale);
     break;
   case 'HATCH':
-
     drawHatch(entity as IHatchEntity, scale, !!insert, layers);
     break;
   case 'MTEXT':
-
     drawText(entity as ITextEntity, scale, !!insert, layers);
     break;
   case 'PATH':
     drawPath(entity as ITextEntity, scale, !!insert);
     break;
   default:
-    // console.log(entity)
     break;
   }
 }
 
 // =========================================================================================================================================
-// =========================================================================================================================================
-// =========================================================================================================================================
 // ==================================== Отрисовка линии ====================================================================================
+
 export function drawLine(entity: IEntity, scale: any) {
   const points: IVertex[] = calculatePoints(entity.vertices, entity.position, entity.rotation);
   const path = new paper.Path({ strokeColor: 'black' });
@@ -64,6 +61,7 @@ export function drawLine(entity: IEntity, scale: any) {
 }
 
 // ==================================== Отрисовка арки======================================================================================
+
 function calcArc(angle: number, entity: IArcEntity, insert: boolean) {
   const firstX = Math.cos(angle) * entity.radius + entity.center.x;
   const firstY = Math.sin(angle) * entity.radius + entity.center.y;
@@ -86,8 +84,6 @@ function calcArc(angle: number, entity: IArcEntity, insert: boolean) {
 
 
 export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers: Record<string, paper.Layer>) {
-
-
   let mid = (entity.endAngle - entity.startAngle) / 2 + entity.startAngle;
 
   if (entity.endAngle < entity.startAngle) {
@@ -125,11 +121,9 @@ export function drawArc(entity: IArcEntity, scale: any, insert: boolean, layers:
 }
 
 // =========================================================================================================================================
+
 export function drawPath(entity: IEntity, scale: any, insert: boolean) {
-  const path = new paper.Path({
-    // fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
-    strokeColor: 'rgb(147, 149, 152)'
-  });
+  const path = new paper.Path({ strokeColor: 'rgb(147, 149, 152)' });
 
   const points: IVertex[] = insert ?
     calculatePoints(entity.vertices, entity.position, entity.rotation) :
@@ -142,6 +136,7 @@ export function drawPath(entity: IEntity, scale: any, insert: boolean) {
 }
 
 // =========================================================================================================================================
+
 let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
@@ -180,12 +175,9 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
   });
 }
 
-const t = 0;
-
 // =========================================================================================================================================
+
 export function drawText(entity: ITextEntity, scale: any, insert = false, layers: Record<string, paper.Layer>) {
-
-
   let text = entity.text;
   try {
     text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+')
@@ -209,6 +201,7 @@ export function drawText(entity: ITextEntity, scale: any, insert = false, layers
 }
 
 // =========================================================================================================================================
+
 export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string, paper.Layer>) {
 
   const vertices: IVertex[] = [];
@@ -243,13 +236,13 @@ export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string
     }
 
     activeEntity = path;
-    activeEntity.fillColor = 'crimson';
+    activeEntity.fillColor = '#00b894';
     console.log(entity);
   };
 
   path.onMouseEnter = () => {
     hoverEntity = path;
-    hoverEntity.fillColor = 'teal';
+    hoverEntity.fillColor = '#fab1a0';
   };
 
   path.onMouseLeave = () => {
@@ -258,7 +251,7 @@ export function drawRect(entity: IHatchEntity, scale: any, layers: Record<string
     }
   };
 
-  layers.clickable.addChild(path);
+  layers.tables.addChild(path);
 }
 
 // =========================================================================================================================================

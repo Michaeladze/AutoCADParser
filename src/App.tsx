@@ -26,7 +26,9 @@ const App: React.FC = () => {
 
   return (
     <div className='app'>
-      <canvas id='canvas' data-paper-resize='true'/>
+      <div id='canvas-container'>
+        <canvas id='canvas' data-paper-resize='true'/>
+      </div>
     </div>
   );
 };

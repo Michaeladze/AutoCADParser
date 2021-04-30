@@ -32,6 +32,8 @@ export const init = (dxf: IDxf) => {
   }
 
   paper.setup(canvas);
+
+  /** Масштабирование */
   paper.PaperScript.execute(`
       function onMouseDrag(event) {
         // ...update view center.
@@ -59,16 +61,26 @@ export const init = (dxf: IDxf) => {
 
   /** Создаем слои */
   const layers: Record<string, paper.Layer> = {
-    clickable: new paper.Layer(),
+    tables: new paper.Layer(),
+    rooms: new paper.Layer(),
     text: new paper.Layer(),
     items: new paper.Layer()
   };
 
   // ===================================================================================================================
+
+  const container = document.getElementById('canvas-container');
+
+  if (!container) {
+    return;
+  }
+
+  const { height } = container.getBoundingClientRect();
+
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const scale = getScales_my(ranges, window.innerHeight * ratio, window.innerHeight);
+  const scale = getScales_my(ranges, height * ratio, height);
 
 
   const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
@@ -77,16 +89,11 @@ export const init = (dxf: IDxf) => {
   console.log(actEntities);
   const places = actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'));
 
-  // findZonesOfWorkPlaces(actEntities);
-
   actEntities.forEach((entity: IEntity) => {
     if (validLayer(entity)) {
       return;
     }
 
-
-    // если рабочее место, то заменяем его на кружок
-    // иначе обрабатываем entity
     if (entity.type === 'INSERT' && entity.name) {
       const block = dxf.blocks[entity.name];
 
@@ -131,7 +138,7 @@ export const init = (dxf: IDxf) => {
     }
   });
 
-  layers.clickable.bringToFront();
+  layers.tables.bringToFront();
   layers.text.bringToFront();
 
   console.warn('================================STATISTICS==================================');

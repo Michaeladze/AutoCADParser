@@ -1,6 +1,8 @@
 import { IEntity, IVertex } from '../types/types';
 import { IRanges } from '../types/helper.types';
-// =========================================================================================================================================
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 export function calculatePoints(vertices: IVertex[], position?: IVertex, rotation?: number): IVertex[] {
   if (!vertices) {
     return [];
@@ -33,7 +35,9 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
 
   return points;
 }
-// =========================================================================================================================================
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 export const getScales_my = (ranges: IRanges, width: number, height: number) => ({
   x: (c:number ) => (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
   y: (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
@@ -44,33 +48,43 @@ export const getScales_my = (ranges: IRanges, width: number, height: number) => 
     return c * ratio * 1.35;
   }
 });
-// =========================================================================================================================================
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 /** Поиск диапазонов по осям X и Y */
 export function findRanges(entities: IEntity[]): IRanges {
+  const points: IVertex[] = entities.reduce((acc: IVertex[], e: IEntity) => {
+    if (e.vertices && e.layer !== 'Основные надписи') {
+      acc = [...acc, ...e.vertices];
+    }
+
+    return acc;
+  }, []);
+
+  return findRangesFromPoints(points);
+}
+
+export function findRangesFromPoints(points: IVertex[]): IRanges {
   let minX = Number.MAX_SAFE_INTEGER;
   let maxX = -Number.MAX_SAFE_INTEGER;
   let minY = Number.MAX_SAFE_INTEGER;
   let maxY = -Number.MAX_SAFE_INTEGER;
 
-  entities.forEach((e: IEntity) => {
-    if (e.vertices && e.layer !== 'Основные надписи') {
-      e.vertices.forEach((v: IVertex) => {
-        if (v.x > maxX) {
-          maxX = v.x;
-        }
+  points.forEach((v: IVertex) => {
+    if (v.x > maxX) {
+      maxX = v.x;
+    }
 
-        if (v.x < minX) {
-          minX = v.x;
-        }
+    if (v.x < minX) {
+      minX = v.x;
+    }
 
-        if (v.y > maxY) {
-          maxY = v.y;
-        }
+    if (v.y > maxY) {
+      maxY = v.y;
+    }
 
-        if (v.y < minY) {
-          minY = v.y;
-        }
-      });
+    if (v.y < minY) {
+      minY = v.y;
     }
   });
 
@@ -79,7 +93,9 @@ export function findRanges(entities: IEntity[]): IRanges {
     yDomain: [minY, maxY]
   };
 }
+
 // =========================================================================================================================================
+
 export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVertex {
   const p = { ...point };
   const sin: number = Math.sin(angle);
@@ -96,23 +112,3 @@ export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVer
 
   return p;
 }
-// =========================================================================================================================================
-export const colors: Record<string, string> = {
-  '0': '',
-  'АР_Двери': '',
-  'АР_Ниши ПК': '',
-  'АР_Окна': '',
-  'АР_Офисная мебель': '',
-  'АР_Офисная мебель_Заливка РМ': '',
-  'АР_Перекрытия': '',
-  'АР_Полилинии': '',
-  'АР_Стены': '',
-  'АР_Стены_Заливка': '',
-  'ИС_Воздухораспределители': '',
-  'ИС_Оборудование': '',
-  'ИС_Отопление': '',
-  'ИС_Сантехника': '',
-  'Марки помещений': '',
-  'Невидимые линии': '',
-  'Основные надписи': ''
-};
