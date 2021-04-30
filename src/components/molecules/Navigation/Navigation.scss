@@ -1,0 +1,23 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.nav-link {
+  font-family: sans-serif;
+  color: #F7F9FC;
+  font-size: 16px;
+  text-decoration: none;
+  padding: 4px 8px;
+}
+
+.nav-link:hover {
+  background-color: #F7F9FC;
+  color: #2E3A59;
+}
+
+.nav-link--active {
+  background-color: #F7F9FC;
+  color: #2E3A59;
+}

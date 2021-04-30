@@ -5,12 +5,12 @@ const fs = require('fs');
 const app = express();
 app.use(cors());
 
-const data = fs.readFileSync('./assets/data3.dxf', { encoding: 'utf-8' })
+app.get('/getData/:id', (req, res) => {
 
-app.get('/getData', (req, res) => {
-  res.json({
-    data
-  })
+  fs.readFile(`./assets/data${req.params.id}.dxf`, 'utf-8', (err, data) => {
+    if (err) throw err;
+    res.json({data});
+  });
 })
 
 

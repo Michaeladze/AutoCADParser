@@ -46,6 +46,14 @@ html, body {
 .app {
   width: 100%;
   height: 100%;
+  display: flex;
+  background: #F0F4FA;
+}
+
+.aside {
+  width: 100px;
+  height: 100%;
+  background-color: #2E3A59;
 }
 
 #canvas-container {
