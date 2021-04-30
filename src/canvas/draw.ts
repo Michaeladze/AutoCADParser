@@ -1,7 +1,9 @@
 import {
   IArcEntity, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
-import { calculatePoints, findRanges } from './helpers';
+import {
+  calculatePoints, findCenter, findRanges, findRangesFromPoints
+} from './helpers';
 import * as paper from 'paper';
 import { IRanges } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
@@ -171,7 +173,36 @@ export function drawHatch(entity: IHatchEntity, scale: any, insert: boolean, lay
       path.sendToBack();
     }
 
-    layers.items.addChild(path);
+    if (entity.handle === 'place') {
+      layers.rooms.addChild(path);
+
+      path.onClick = () => {
+
+        const container = document.getElementById('canvas-container');
+
+        if (!container) {
+          return;
+        }
+
+        const { width, height } = container.getBoundingClientRect();
+
+        const center: IVertex = findCenter(entity.vertices, scale);
+        const { xDomain, yDomain } = findRangesFromPoints(entity.vertices);
+
+        const roomWidth = xDomain[1] - xDomain[0];
+        const roomHeight = yDomain[1] - yDomain[0];
+
+        const rx = width / scale.scale(roomWidth);
+        const ry = height / scale.scale(roomHeight);
+
+        paper.view.center = new paper.Point(center);
+        paper.view.zoom = Math.min(rx, ry);
+      };
+
+    } else {
+      layers.items.addChild(path);
+    }
+
   });
 }
 

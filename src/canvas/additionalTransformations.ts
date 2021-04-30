@@ -7,7 +7,7 @@ import { drawEntity } from './draw';
 import { RandomColor } from '../dxf-parser/src/colors';
 
 import paper from 'paper';
-import { calculatePoints, findRangesFromPoints } from './helpers';
+import { calculatePoints, findCenter } from './helpers';
 
 
 export const checkSeats = (entity: IEntity): boolean => {
@@ -29,12 +29,11 @@ export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: any, la
   }, []);
 
   const points: IVertex[] = calculatePoints(vertices, entity.position, entity.rotation);
-
-  const { xDomain, yDomain } = findRangesFromPoints(points);
+  const center: IVertex = findCenter(points, scale);
 
   if (entity.position) {
     new paper.Path.Circle({
-      center: [scale.x((xDomain[0] + (xDomain[1] - xDomain[0]) / 2)), scale.y(yDomain[0] + (yDomain[1] - yDomain[0]) / 2)],
+      center: [center.x, center.y],
       radius: scale.scale(150),
       strokeColor: 'lightgray'
     });

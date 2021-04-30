@@ -96,6 +96,22 @@ export function findRangesFromPoints(points: IVertex[]): IRanges {
 
 // =========================================================================================================================================
 
+export function findCenter(points: IVertex[], scale: any): IVertex {
+  const center: IVertex = {
+    x: 0,
+    y: 0,
+    z: 0
+  };
+
+  const { xDomain, yDomain } = findRangesFromPoints(points);
+  center.x = scale.x((xDomain[0] + (xDomain[1] - xDomain[0]) / 2));
+  center.y = scale.y(yDomain[0] + (yDomain[1] - yDomain[0]) / 2);
+
+  return center;
+}
+
+// =========================================================================================================================================
+
 export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVertex {
   const p = { ...point };
   const sin: number = Math.sin(angle);

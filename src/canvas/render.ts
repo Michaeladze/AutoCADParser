@@ -138,6 +138,7 @@ export const init = (dxf: IDxf) => {
     }
   });
 
+  layers.rooms.bringToFront();
   layers.tables.bringToFront();
   layers.text.bringToFront();
 
