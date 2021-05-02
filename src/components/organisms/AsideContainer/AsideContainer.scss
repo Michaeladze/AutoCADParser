@@ -1,0 +1,19 @@
+@import "~root-front/dist/styles/mixins";
+
+.aside-container {
+  position: fixed;
+  padding: 24px;
+  top: 24px;
+  left: 24px;
+  width: 320px;
+  height: calc(100% - 48px);
+  background: #FFFFFF;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  cursor: default;
+}
+
+.aside-container__title {
+  @include h5;
+  margin-bottom: 24px;
+}

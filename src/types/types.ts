@@ -14,6 +14,7 @@ export interface IBlock {
   xrefPath: string;
   id?: string;
   parentId?: string;
+  text?: string;
 }
 
 export interface IEntity {
@@ -35,6 +36,7 @@ export interface IEntity {
   position?: IVertex;
   rotation?: number;
   color?:string
+  text?: string;
 }
 
 export interface ICircleEntity extends IEntity {
@@ -89,4 +91,9 @@ export interface IVertex {
   x: number;
   y: number;
   z: number;
+}
+
+export interface IBounds {
+  minZoom: number;
+  maxZoom: number;
 }

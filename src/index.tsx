@@ -2,7 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
+import cssVars from 'css-vars-ponyfill';
+import variables from './_utils/colors.json';
 
+/** Подключаем цвета для IE */
+cssVars({
+  watch: true,
+  include: 'style,link[rel="stylesheet"]:not([href*="//"])',
+  variables
+});
 
 ReactDOM.render(
   <React.StrictMode>

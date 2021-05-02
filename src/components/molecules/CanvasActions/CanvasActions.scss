@@ -1,0 +1,12 @@
+.canvas-actions {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.canvas-actions__button {
+  margin: 20px 0;
+  background-color: white;
+  border-radius: 50%;
+}

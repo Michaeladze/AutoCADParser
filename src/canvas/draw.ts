@@ -1,5 +1,5 @@
 import {
-  IArcEntity, IEntity, IHatchEntity, ITextEntity, IVertex
+  IArcEntity, IBlock, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
 import {
   calculatePoints, findCenter, findRangesFromPoints
@@ -9,7 +9,7 @@ import { IScale } from '../types/helper.types';
 import { changePolyline } from './additionalTransformations';
 import { statistics, statisticsFull } from './render';
 
-export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string, paper.Layer>, insert?: boolean, entities?:IEntity[]) {
+export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string, paper.Layer>, block?: IBlock, entities?: IEntity[]) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
   statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
@@ -22,28 +22,28 @@ export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string
     drawLine(entity, scale);
     break;
   case 'LWPOLYLINE':
-    drawHatch(changePolyline(entity as IHatchEntity, entities), scale, !!insert, layers);
+    drawHatch(changePolyline(entity as IHatchEntity, entities), scale, !!block, layers);
     break;
   case 'CIRCLE':
     const en = entity as IArcEntity;
     en.startAngle = 0;
     en.endAngle = 1.9999 * Math.PI;
-    drawArc(en, scale, !!insert, layers);
+    drawArc(en, scale, !!block, layers);
     break;
   case 'ARC':
-    drawArc(entity as IArcEntity, scale, !!insert, layers);
+    drawArc(entity as IArcEntity, scale, !!block, layers);
     break;
   case 'ELLIPSE':
     // drawEllipse(entity as IEllipseEntity, scale);
     break;
   case 'HATCH':
-    drawHatch(entity as IHatchEntity, scale, !!insert, layers);
+    drawHatch(entity as IHatchEntity, scale, !!block, layers);
     break;
   case 'MTEXT':
-    drawText(entity as ITextEntity, scale, !!insert, layers);
+    drawText(entity as ITextEntity, scale, !!block, layers);
     break;
   case 'PATH':
-    drawPath(entity as ITextEntity, scale, !!insert);
+    drawPath(entity as ITextEntity, scale, !!block);
     break;
   default:
     break;
@@ -143,6 +143,14 @@ let activeEntity: any = undefined;
 let hoverEntity: any = undefined;
 
 export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>) {
+
+  const isWorkplaceFill = entity.layer === 'АР_Офисная мебель_Заливка РМ';
+  const isWorkplace = entity.layer === 'АР_Офисная мебель';
+
+  if (isWorkplace) {
+    return;
+  }
+
   entity.boundaries.forEach((boundary: IVertex[][]) => {
     const path = new paper.Path({
       fillColor: entity.color ? entity.color : 'rgb(147, 149, 152)',
@@ -161,9 +169,33 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       calculatePoints(flat, entity.position, entity.rotation) :
       calculatePoints(flat);
 
-    points.forEach((point: IVertex) => {
-      path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
-    });
+    if (isWorkplaceFill) {
+      const center: IVertex = findCenter(points, scale);
+      const p = new paper.Path.Circle({
+        center: [center.x, center.y],
+        radius: scale.scale(250),
+        fillColor: '#3A85FF'
+      });
+      layers.tables.addChild(p);
+
+      const text = new paper.PointText({
+        // 85 - случайное число
+        point: [center.x, center.y + scale.scale(85)],
+        content: entity.text,
+        fillColor: 'white',
+        fontFamily: 'Roboto',
+        fontWeight: 'normal',
+        fontSize: `${scale.scale(250)}px`,
+        justification: 'center'
+      });
+
+      layers.text.addChild(text);
+
+    } else {
+      points.forEach((point: IVertex) => {
+        path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
+      });
+    }
 
     if (entity.layer === '0') {
       // @ts-ignore
@@ -172,7 +204,7 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       return;
     }
 
-    if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
+    if (isWorkplaceFill) {
       // @ts-ignore
       path.strokeColor = 'rgb(147, 149, 152)';
       // @ts-ignore
@@ -244,6 +276,10 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
 // =========================================================================================================================================
 
 export function drawText(entity: ITextEntity, scale: IScale, insert = false, layers: Record<string, paper.Layer>) {
+  if (entity.layer === 'АР_Офисная мебель') {
+    return;
+  }
+
   let text = entity.text;
   try {
     text = decodeURIComponent(JSON.parse('"' + entity.text.split('U+')
@@ -251,6 +287,17 @@ export function drawText(entity: ITextEntity, scale: IScale, insert = false, lay
       .replace(/\"/g, '\\"') + '"'));
   } catch (e) {
 
+  }
+
+  if ([
+    '*',
+    'Сбор',
+    'данных',
+    'не',
+    'проводился',
+    '.'
+  ].includes(text)) {
+    return;
   }
 
   const point = new paper.PointText({
@@ -261,7 +308,6 @@ export function drawText(entity: ITextEntity, scale: IScale, insert = false, lay
     fontWeight: 'normal',
     fontSize: `${scale.scale(entity.height)}px`
   });
-
 
   layers.text.addChild(point);
 }

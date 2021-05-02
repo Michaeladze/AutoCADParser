@@ -21,6 +21,10 @@ export const checkSeats = (entity: IEntity): boolean => {
 
 export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale, layers: Record<string, paper.Layer>) => {
 
+  if (entity.name && entity.name.toLowerCase().indexOf('кресло') >= 0) {
+    return;
+  }
+
   const vertices: IVertex[] = block.entities.reduce((acc: IVertex[], e: IEntity) => {
     if (e.vertices) {
       acc = [...acc, ...e.vertices];
@@ -51,7 +55,7 @@ export const drawNumbers = (
   en.type = 'MTEXT';
   // немного увеличиваем шрифт
   en.height = number.fontSize + 20;
-  drawEntity(en, scale, layers, false);
+  drawEntity(en, scale, layers, undefined);
 };
 // =========================================================================================================================================
 

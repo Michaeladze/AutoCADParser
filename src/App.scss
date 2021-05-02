@@ -1,3 +1,5 @@
+@import "~root-front/dist/styles/common.scss";
+
 @font-face {
   font-weight: 400;
   font-family: 'Roboto';
@@ -48,12 +50,6 @@ html, body {
   height: 100%;
   display: flex;
   background: #F0F4FA;
-}
-
-.aside {
-  width: 100px;
-  height: 100%;
-  background-color: #2E3A59;
 }
 
 #canvas-container {

@@ -1,7 +1,11 @@
-import { IDxf, IEntity } from '../types/types';
+import {
+  IBlock, IDxf, IEntity
+} from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
-import { findRanges, getScales_my } from './helpers';
+import {
+  findRanges, getScales_my, renderLayer
+} from './helpers';
 import { IRanges, IScale } from '../types/helper.types';
 import {
   checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
@@ -9,21 +13,8 @@ import {
 
 export const statistics: any = {};
 export const statisticsFull: any = {};
-const validLayer = (entity: IEntity) => !(
-  // ~entity.layer.toLowerCase().indexOf('стены') ||
-  // ~entity.layer.toLowerCase().indexOf('окна') ||
-  ~entity.layer.toLowerCase().indexOf('стены_заливка') ||
-  ~entity.layer.toLowerCase().indexOf('офисная мебель') ||
-  ~entity.layer.toLowerCase().indexOf('двери') ||
-  ~entity.layer.toLowerCase().indexOf('помещений') ||
-  ~entity.layer.toLowerCase().indexOf('перекрытия') ||
-  // ~entity.layer.toLowerCase().indexOf('сант') ||
 
-  ~entity.layer.toLowerCase().indexOf('полилинии')
-);
-
-
-export const init = (dxf: IDxf) => {
+export const init = (dxf: IDxf): any => {
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -84,16 +75,27 @@ export const init = (dxf: IDxf) => {
   const ranges: IRanges = findRanges(dxf.entities);
   const { xDomain, yDomain } = ranges;
   const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const scale: IScale = getScales_my(ranges, height * ratio, height);
+  const scale: IScale = getScales_my(ranges, height * ratio, height, 368, 0);
 
-  const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
+  const actEntities = simplifyBlock(dxf.entities.filter((en) => renderLayer(en)));
   // const actEntities = simplifyBlock(dxf.entities.filter((en) => !validLayer(en)));
+
+  /** Добавить текст в рабочие места */
+  actEntities.forEach((entity: IEntity) => {
+    if (entity.type === 'INSERT' && entity.name) {
+      const block: IBlock = dxf.blocks[entity.name];
+
+      if (block && entity.attr && entity.attr['номер'] && entity.layer === 'АР_Офисная мебель') {
+        block.text = entity.attr['номер'].text;
+      }
+    }
+  });
 
   console.log(actEntities);
   const places = actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'));
 
   actEntities.forEach((entity: IEntity) => {
-    if (validLayer(entity)) {
+    if (!renderLayer(entity)) {
       return;
     }
 
@@ -125,9 +127,13 @@ export const init = (dxf: IDxf) => {
 
           // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
           if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-            ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, true);
+            if (block.text) {
+              blockEntity.text = block.text;
+            }
+
+            ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, block);
           } else {
-            drawEntity(blockEntity, scale, layers, true);
+            drawEntity(blockEntity, scale, layers, block);
           }
         });
 
@@ -137,7 +143,7 @@ export const init = (dxf: IDxf) => {
         entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0) : entity.position?.y;
       }
 
-      drawEntity(entity, scale, layers, false, places);
+      drawEntity(entity, scale, layers, undefined, places);
     }
   });
 
