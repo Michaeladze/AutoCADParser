@@ -9,7 +9,7 @@ import { RandomColor } from '../dxf-parser/src/colors';
 import paper from 'paper';
 import { calculatePoints, findCenter } from './helpers';
 import { IScale } from '../types/helper.types';
-
+// =========================================================================================================================================
 
 export const checkSeats = (entity: IEntity): boolean => {
   const puf = (entity.name && entity.name.toLowerCase().indexOf('пуф') >= 0) || false;
@@ -18,7 +18,7 @@ export const checkSeats = (entity: IEntity): boolean => {
 
   return armchair || chair || puf;
 };
-
+// =========================================================================================================================================
 export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale, layers: Record<string, paper.Layer>) => {
 
   if (entity.name && entity.name.toLowerCase().indexOf('кресло') >= 0) {
@@ -93,10 +93,23 @@ export const changePolyline = (entity: IHatchEntity, entities?: IEntity[]) => {
 
 
   entities?.forEach((pl) => {
-    const point = new paper.Point(pl.position?.x || 0, pl.position?.y || 0);
-    path.contains(point) && (entity.handle = 'place');
+    let test = false;
+    test = !test ? path.contains(new paper.Point( (pl.position?.x || 0), (pl.position?.y || 0) )) : true;
+    test = !test ? path.contains(new paper.Point(pl.position?.x || 0, (pl.position?.y || 0) - 1)) : true;
+    test = !test ? path.contains(new paper.Point(pl.position?.x || 0, (pl.position?.y || 0) + 1)) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) + 1, pl.position?.y || 0)) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) + 1, (pl.position?.y || 0) + 1)) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) + 1, (pl.position?.y || 0) - 1)) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) - 1, (pl.position?.y || 0) )) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) - 1, (pl.position?.y || 0) + 1)) : true;
+    test = !test ? path.contains(new paper.Point((pl.position?.x || 0) - 1, (pl.position?.y || 0) - 1)) : true;
+
+
+    test && (entity.handle = 'place');
+
   });
 
+  path.remove();
 
   entity.color = entity.handle === 'place' ? new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d' : '#ffffff00';
 

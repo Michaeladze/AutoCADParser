@@ -173,23 +173,45 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       const center: IVertex = findCenter(points, scale);
       const p = new paper.Path.Circle({
         center: [center.x, center.y],
-        radius: scale.scale(250),
+        radius: scale.scale(300),
         fillColor: '#3A85FF'
       });
       layers.tables.addChild(p);
 
-      const text = new paper.PointText({
-        // 85 - случайное число
-        point: [center.x, center.y + scale.scale(85)],
-        content: entity.text,
-        fillColor: 'white',
-        fontFamily: 'Roboto',
-        fontWeight: 'normal',
-        fontSize: `${scale.scale(250)}px`,
-        justification: 'center'
-      });
 
-      layers.text.addChild(text);
+      if (+(entity.text || 0)! % 2) {
+        const raster = new paper.Raster();
+
+
+        // raster.source = 'https://kartinki-dlya-srisovki.ru/wp-content/uploads/2019/05/srisovki-rik-i-morti-6.png';
+        raster.source = 'https://www.uokpl.rs/fpng/d/237-2377642_businessperson-png-download.png';
+        raster.position = new paper.Point(center);
+        // raster.size = new paper.Size( 20, 20);
+        raster.scale(0.03);
+
+        const group = new paper.Group();
+        group.addChild(raster);
+        group.insertChild(0, p);
+        group.clipped = true;
+        group.position = new paper.Point(center);
+
+        layers.text.addChild(group);
+      } else {
+        const text = new paper.PointText({
+          // 85 - случайное число
+          point: [center.x, center.y + scale.scale(85)],
+          content: entity.text,
+          fillColor: 'white',
+          fontFamily: 'Roboto',
+          fontWeight: 'normal',
+          fontSize: `${scale.scale(250)}px`,
+          justification: 'center'
+        });
+
+
+        layers.text.addChild(text);
+      }
+
 
     } else {
       points.forEach((point: IVertex) => {
