@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.scss';
 import { useLocation } from 'react-router-dom';
 import { init } from './canvas/render';
@@ -6,9 +6,11 @@ import DxfParser from './dxf-parser/src';
 import CanvasActions from './components/molecules/CanvasActions';
 import AsideContainer from './components/organisms/AsideContainer';
 import CanvasLegend from './components/molecules/CanvasLegend';
+import { ISchema } from './types/types';
 
 const App: React.FC = () => {
   const { pathname } = useLocation();
+  const [schema, setSchema] = useState<ISchema | undefined>(undefined);
 
   const renderCanvas = (data: string) => {
     const parser = new DxfParser();
@@ -20,7 +22,11 @@ const App: React.FC = () => {
         dxf.blocks[e.name].parentId = e.parentId;
       }
     });
-    init(dxf);
+    const schema = init(dxf);
+
+    if (schema) {
+      setSchema(schema);
+    }
   };
 
   const getData = (id: string) => {
@@ -46,8 +52,12 @@ const App: React.FC = () => {
         <canvas id='canvas' data-paper-resize='true'/>
       </div>
       <AsideContainer/>
-      <CanvasActions/>
-      <CanvasLegend/>
+      { schema && (
+        <>
+          <CanvasActions schema={ schema }/>
+          <CanvasLegend/>
+        </>
+      ) }
     </div>
   );
 };

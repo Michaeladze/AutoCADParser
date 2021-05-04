@@ -97,3 +97,7 @@ export interface IBounds {
   minZoom: number;
   maxZoom: number;
 }
+
+export interface ISchema {
+  zoom: (zoomIn: boolean) => void;
+}

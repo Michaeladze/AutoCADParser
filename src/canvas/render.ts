@@ -1,5 +1,5 @@
 import {
-  IBlock, IDxf, IEntity
+  IBlock, IDxf, IEntity, ISchema
 } from '../types/types';
 import paper from 'paper';
 import { drawEntity } from './draw';
@@ -14,12 +14,12 @@ import {
 export const statistics: any = {};
 export const statisticsFull: any = {};
 
-export const init = (dxf: IDxf): any => {
+export const init = (dxf: IDxf): ISchema => {
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
   if (!canvas) {
-    return;
+    return {} as ISchema;
   }
 
   paper.setup(canvas);
@@ -52,6 +52,13 @@ export const init = (dxf: IDxf): any => {
   });
   `, paper);
 
+  const zoom = (zoomIn: boolean) => {
+    const oldZoom = paper.view.zoom;
+    const ZOOM_FACTOR = 1.14;
+    const newZoom = zoomIn ? oldZoom * ZOOM_FACTOR : oldZoom / ZOOM_FACTOR;
+    paper.view.zoom = newZoom;
+  };
+
   // ===================================================================================================================
 
   /** Создаем слои */
@@ -67,7 +74,7 @@ export const init = (dxf: IDxf): any => {
   const container = document.getElementById('canvas-container');
 
   if (!container) {
-    return;
+    return {} as ISchema;
   }
 
   const { height } = container.getBoundingClientRect();
@@ -155,4 +162,6 @@ export const init = (dxf: IDxf): any => {
   console.log(statistics);
   console.log(statisticsFull);
   console.warn('============================================================================');
+
+  return { zoom };
 };
