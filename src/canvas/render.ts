@@ -52,10 +52,19 @@ export const init = (dxf: IDxf): ISchema => {
   });
   `, paper);
 
-  const zoom = (zoomIn: boolean) => {
+  const zoom = (factor: number) => {
     const oldZoom = paper.view.zoom;
     const ZOOM_FACTOR = 1.14;
-    const newZoom = zoomIn ? oldZoom * ZOOM_FACTOR : oldZoom / ZOOM_FACTOR;
+    let newZoom = oldZoom;
+
+    if (factor > 0) {
+      newZoom = oldZoom * (ZOOM_FACTOR * factor);
+    } else if (factor < 0) {
+      newZoom = oldZoom / (ZOOM_FACTOR * Math.abs(factor));
+    } else {
+      newZoom = 1;
+    }
+
     paper.view.zoom = newZoom;
   };
 

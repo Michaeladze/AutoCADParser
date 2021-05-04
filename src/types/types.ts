@@ -99,5 +99,5 @@ export interface IBounds {
 }
 
 export interface ISchema {
-  zoom: (zoomIn: boolean) => void;
+  zoom: (factor: number) => void;
 }

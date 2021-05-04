@@ -19,12 +19,12 @@ const CanvasActions: React.FC<IProps> = ({ schema }: IProps) => {
     <div className='canvas-actions'>
       <div className='canvas-actions__button'>
         <Button buttonType='round'>
-          <BiPlus size={24} onClick={() => schema.zoom(true)}/>
+          <BiPlus size={24} onClick={() => schema.zoom(1)}/>
         </Button>
       </div>
       <div className='canvas-actions__button'>
         <Button buttonType='round'>
-          <BiMinus size={24} onClick={() => schema.zoom(false)}/>
+          <BiMinus size={24} onClick={() => schema.zoom(-1)}/>
         </Button>
       </div>
     </div>
