@@ -5,6 +5,7 @@ import { showLayers } from './config';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function calculatePoints(vertices: IVertex[], position?: IVertex, rotation?: number): IVertex[] {
+
   if (!vertices) {
     return [];
   }

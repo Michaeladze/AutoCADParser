@@ -60,6 +60,7 @@ export const init = (dxf: IDxf): ISchema => {
       const block: IBlock = dxf.blocks[entity.name];
 
       if (block && entity.attr && entity.attr['номер'] && entity.layer === 'АР_Офисная мебель') {
+
         block.text = entity.attr['номер'].text;
       }
     }
@@ -101,9 +102,10 @@ export const init = (dxf: IDxf): ISchema => {
 
           // если встретили рабочее место то отрисовываем только hatch чтобы не рисовать компьютер на столе
           if (entity.name && ~entity.name.toLowerCase().indexOf('место')) {
-            if (block.text) {
-              blockEntity.text = block.text;
-            }
+            // if (block.text) {
+            //   blockEntity.text = block.text;
+            // }
+            blockEntity.attr = entity.attr;
 
             ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, block);
           } else {

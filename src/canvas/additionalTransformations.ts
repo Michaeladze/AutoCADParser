@@ -21,6 +21,7 @@ export const checkSeats = (entity: IEntity): boolean => {
 // =========================================================================================================================================
 export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale, layers: Record<string, paper.Layer>) => {
 
+
   if (entity.name && entity.name.toLowerCase().indexOf('кресло') >= 0) {
     return;
   }
@@ -76,14 +77,14 @@ export const changePolyline = (entity: IHatchEntity, entities?: IEntity[]) => {
 
     if (!end) {
       end = entity.vertices[i];
-      entity.boundaries[0].push([start, end]);
+      entity.boundaries[0].push(start, end);
       start = entity.vertices[i];
       end = undefined;
     }
 
   }
 
-  entity.boundaries[0].push([start as IVertex, entity.vertices[0]]);
+  entity.boundaries[0].push(start as IVertex, entity.vertices[0]);
   const path = new paper.Path();
   entity.vertices.forEach(it => {
 
