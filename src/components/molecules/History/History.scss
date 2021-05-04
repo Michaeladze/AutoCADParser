@@ -1,0 +1,11 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-history__title {
+  @include h6;
+  margin-bottom: 8px;
+}
+
+.rm-history__empty {
+  @include p1;
+  color: var(--base-500);
+}

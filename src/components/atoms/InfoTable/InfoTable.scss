@@ -1,0 +1,20 @@
+@import "~root-front/dist/styles/mixins";
+
+.info-table {
+  padding: 12px;
+  background: var(--base-150);
+  border-radius: 8px;
+}
+
+.info-table__row:not(:last-of-type) {
+  margin-bottom: 12px;
+}
+
+.info-table__label {
+  @include p2;
+  color: var(--base-500);
+}
+
+.info-table__value {
+  @include s2;
+}

@@ -1,0 +1,37 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-workplace__employee-main {
+  display: flex;
+  align-items: center;
+}
+
+.rm-workplace__employee-details {
+  margin-left: 14px;
+}
+
+.rm-workplace__employee-name {
+  @include s2;
+}
+
+.rm-workplace__employee-dates {
+  @include p2;
+  color: var(--base-500);
+}
+
+.rm-workplace__employee-info {
+  margin-left: 16px;
+  cursor: pointer;
+  color: var(--base-500);
+}
+
+.rm-workplace__employee-info:hover {
+  color: var(--accent-500);
+}
+
+.rm-workplace__employee-info--active {
+  color: var(--accent-500);
+}
+
+.rm-workplace__employee-position {
+  margin-top: 14px;
+}
