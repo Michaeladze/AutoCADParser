@@ -1,9 +1,7 @@
 import React from 'react';
 import './CanvasActions.scss';
 import { Button } from 'root-front';
-import {
-  BiMinus, BiPlus, BiCurrentLocation
-} from 'react-icons/bi';
+import { BiMinus, BiPlus } from 'react-icons/bi';
 
 
 interface IProps {
@@ -22,11 +20,6 @@ const CanvasActions: React.FC<IProps> = ({}: IProps) => {
       <div className='canvas-actions__button'>
         <Button buttonType='round'>
           <BiMinus size={24}/>
-        </Button>
-      </div>
-      <div className='canvas-actions__button'>
-        <Button buttonType='round'>
-          <BiCurrentLocation size={24}/>
         </Button>
       </div>
     </div>

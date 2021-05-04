@@ -10,8 +10,8 @@ const CanvasLegend: React.FC = () => {
       text: 'Стол вашего стрима'
     },
     {
-      style: { background: '#00B7A9' },
-      text: 'Ограниченный доступ'
+      style: { background: 'linear-gradient(to right, #A56EFF 50%, #00B7A9 50%)' },
+      text: 'Сдвоенный'
     },
     {
       style: { background: '#B1B5BB' },
