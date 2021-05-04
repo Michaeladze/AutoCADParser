@@ -8,7 +8,7 @@ import paper from 'paper';
 
 
 /** вычисляет координаты точек на окружности*/
-const calcArc = (angle: number, entity: IArcEntity, insert: boolean) => calculatePoints([
+export const calcArc = (angle: number, entity: IArcEntity, insert: boolean) => calculatePoints([
   {
     x: Math.cos(angle) * entity.radius + entity.center.x,
     y: Math.sin(angle) * entity.radius + entity.center.y,

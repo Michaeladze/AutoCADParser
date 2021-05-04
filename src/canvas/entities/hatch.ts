@@ -7,7 +7,7 @@ import {
   calculatePoints, findCenter, findRangesFromPoints
 } from '../helpers';
 
-const activeEntity: any = undefined;
+let activeEntity: paper.Group|undefined = undefined;
 const hoverEntity: any = undefined;
 
 const places = {};
@@ -27,44 +27,85 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
     z: 0
   };
 
-  const p = new paper.Path.Circle({
+
+  const myStream = !!(entity.attr && entity.attr['помещение'].text === '31.27 Открытое пространство');
+  const workplaceType = +( entity.attr ? entity.attr['номер'].text : '' || 0)! % 5;
+
+  // =============GROUP==================
+  const group = new paper.Group();
+  const clippedCircle = new paper.Path.Circle({
     center: [center.x, center.y],
     radius: scale.scale(440),
-    fillColor: '#3A85FF'
   });
-  layers.tables.addChild(p);
 
-  if (+( entity.attr ? entity.attr['номер'].text : '' || 0)! % 2) {
+  group.insertChild(0, clippedCircle);
+  group.clipped = true;
+  group.position = new paper.Point(center);
+  group.onClick = () => {
+    activeEntity && activeEntity.scale(0.8);
+    group.scale(1.2);
+    activeEntity = group;
+    // activeEntity.fillColor = '#00b894';
+    console.log(entity);
+  };
+  layers.text.addChild(group);
+
+  // =============PRIMITIVES==================
+  if ( [0, 1, 4].includes(workplaceType) || !myStream) {
+    group.insertChild(1, new paper.Path.Circle({
+      center: [center.x, center.y],
+      radius: scale.scale(440),
+      fillColor: myStream && workplaceType ? (workplaceType === 4) ? '#00B7A9' : '#3A85FF' : '#B1B5BB'
+    }));
+    group.insertChild(
+      2,
+      new paper.PointText({
+      // 85 - случайное число
+        point: [center.x, center.y + scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
+        content: entity.attr ? entity.attr['номер'].text : '',
+        fillColor: 'white',
+        fontFamily: 'Roboto',
+        fontWeight: 'normal',
+        fontSize: `${scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
+        justification: 'center'
+      })
+    );
+  } else if ([2].includes(workplaceType)) {
     const raster = new paper.Raster();
-
-
     raster.source = 'https://www.uokpl.rs/fpng/d/237-2377642_businessperson-png-download.png';
     raster.position = new paper.Point(center);
-    // raster.size = new paper.Size( 20, 20);
     raster.scale(scale.scale(1.5));
-
-    const group = new paper.Group();
     group.addChild(raster);
-    group.insertChild(0, p);
-    group.clipped = true;
-    group.position = new paper.Point(center);
+  } else if ([3].includes(workplaceType)) {
 
-    layers.text.addChild(group);
-  } else {
-    const text = new paper.PointText({
-      // 85 - случайное число
-      point: [center.x, center.y + scale.scale(85)],
-      content: entity.attr ? entity.attr['номер'].text : '',
-      fillColor: 'white',
-      fontFamily: 'Roboto',
-      fontWeight: 'normal',
-      fontSize: `${scale.scale(350)}px`,
-      justification: 'center'
-    });
+    group.insertChild(1, new paper.Path.Arc({
+      from: [center.x, center.y + scale.scale(440) ],
+      through: [center.x + scale.scale(440), center.y ],
+      to: [center.x, center.y - scale.scale(440)],
+      fillColor: '#00B7A9'
+    }) );
 
-
-    layers.text.addChild(text);
+    group.insertChild(2, new paper.Path.Arc({
+      from: [center.x, center.y + scale.scale(440) ],
+      through: [center.x - scale.scale(440), center.y ],
+      to: [center.x, center.y - scale.scale(440)],
+      fillColor: '#A56EFF'
+    }) );
+    group.insertChild(
+      3,
+      new paper.PointText({
+        // 85 - случайное число
+        point: [center.x, center.y + scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
+        content: entity.attr ? entity.attr['номер'].text : '',
+        fillColor: 'white',
+        fontFamily: 'Roboto',
+        fontWeight: 'normal',
+        fontSize: `${scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
+        justification: 'center'
+      })
+    );
   }
+
 }
 
 
