@@ -11,10 +11,6 @@ interface IProps {
 
 const CanvasActions: React.FC<IProps> = ({ schema }: IProps) => {
 
-  const onClick = () => {
-
-  };
-
   return (
     <div className='canvas-actions'>
       <div className='canvas-actions__button'>

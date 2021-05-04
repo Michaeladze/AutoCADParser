@@ -1,18 +1,15 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import './AsideContainer.scss';
-import { Input } from 'root-front';
+import { useLocation } from 'root-front';
+import Home from '../../pages/Home';
+import WorkPlace from '../../pages/WorkPlace';
 
-
-interface IProps {
-    children?: ReactNode | ReactNode[];
-}
-
-const AsideContainer: React.FC<IProps> = ({ children }: IProps) => {
+const AsideContainer: React.FC = () => {
+  const { query } = useLocation();
 
   return (
     <div className='aside-container'>
-      <h2 className='aside-container__title'>Бронирование рабочих мест</h2>
-      <Input placeholder='Искать коллег, номер места' search/>
+      {query.table ? <WorkPlace/> : <Home/> }
     </div>
   );
 };

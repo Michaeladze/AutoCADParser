@@ -1,0 +1,28 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-workplace__label {
+  @include s2;
+  color: var(--base-500);
+}
+
+.rm-workplace__value {
+  @include p2;
+}
+
+.rm-workplace__block:not(:last-of-type) {
+  margin-bottom: 12px;
+}
+
+.rm-workplace__employees {
+  margin-top: 8px;
+}
+
+.rm-workplace__back {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.rm-workplace__back-icon {
+  color: var(--accent-500);
+}

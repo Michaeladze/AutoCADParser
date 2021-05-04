@@ -1,0 +1,6 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-calendar__title {
+  @include h6;
+  margin-bottom: 8px;
+}

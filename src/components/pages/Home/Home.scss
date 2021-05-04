@@ -1,0 +1,10 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-home__title {
+  @include h5;
+  margin-bottom: 24px;
+}
+
+.rm-home__block {
+  margin-top: 24px;
+}

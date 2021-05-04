@@ -1,0 +1,14 @@
+@import "~root-front/dist/styles/mixins";
+
+.rm-colleagues__title {
+  @include h6;
+  margin-bottom: 8px;
+}
+
+.rm-colleagues__list {
+  display: flex;
+}
+
+.rm-colleagues__item:not(:last-of-type) {
+  margin-right: 16px;
+}
