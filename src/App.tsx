@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.scss';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { init } from './canvas/render';
 import DxfParser from './dxf-parser/src';
 import CanvasActions from './components/molecules/CanvasActions';
@@ -10,6 +10,7 @@ import { ISchema } from './types/types';
 
 const App: React.FC = () => {
   const { pathname } = useLocation();
+  const history = useHistory();
   const [schema, setSchema] = useState<ISchema | undefined>(undefined);
 
   const renderCanvas = (data: string) => {
@@ -43,6 +44,8 @@ const App: React.FC = () => {
 
     if (id) {
       getData(id);
+    } else {
+      history.push('/schema/1');
     }
   }, [pathname]);
 
