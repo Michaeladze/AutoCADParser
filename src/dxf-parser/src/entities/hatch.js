@@ -144,7 +144,7 @@ function parseHatchVertices(n, scanner) {
       }
       curr = scanner.next();
     }
-     vertices.push([{x:vertex.start.x,y:vertex.start.y,z:0},{x:vertex.end.x,y:vertex.end.y,z:0}]);
+     vertices.push({x:vertex.start.x,y:vertex.start.y,z:0},{x:vertex.end.x,y:vertex.end.y,z:0});
     // vertices.push(vertex);
     vertexIsStarted = false;
     vertexIsFinished = false;

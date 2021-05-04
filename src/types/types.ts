@@ -68,7 +68,7 @@ export interface IArcEntity extends IEntity {
 
 export interface IHatchEntity extends IEntity {
   associativity: false
-  boundaries: IVertex[][][];
+  boundaries: IVertex[][];
   boundaryPathsCount: number;
   elevationX: number;
   extrusionDirectionX: number;
