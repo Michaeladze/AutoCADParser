@@ -1,6 +1,8 @@
 // =========================================================================================================================================
 
-import { IHatchEntity, IVertex } from '../../types/types';
+import {
+  IAttributeMap, IHatchEntity, IVertex
+} from '../../types/types';
 import { IScale } from '../../types/helper.types';
 import paper from 'paper';
 import {
@@ -13,7 +15,7 @@ const hoverEntity: any = undefined;
 const places = {};
 
 
-function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, layers:Record<string, paper.Layer>) {
+function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, layers:Record<string, paper.Layer>, onWorkplaceClick?: (attribute: IAttributeMap) => void) {
 
   let center: IVertex = findCenter(points, scale);
   const x1 = scale.x(entity.position.x);
@@ -46,7 +48,7 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
     group.scale(1.2);
     activeEntity = group;
     // activeEntity.fillColor = '#00b894';
-    console.log(entity);
+    onWorkplaceClick && entity.attr && onWorkplaceClick(entity.attr);
   };
   layers.text.addChild(group);
 
@@ -109,7 +111,7 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
 }
 
 
-export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>) {
+export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>, onWorkplaceClick?: (attribute: IAttributeMap) => void) {
 
   const isWorkplaceFill = entity.layer === 'АР_Офисная мебель_Заливка РМ';
 
@@ -124,7 +126,7 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
     });
 
     if (isWorkplaceFill ) {
-      drawWorkPlaces(entity, points, scale, layers);
+      drawWorkPlaces(entity, points, scale, layers, onWorkplaceClick);
       return;
     }
 

@@ -22,21 +22,28 @@ export interface IEntity {
     applicationName: string;
     customStrings: string[]
   };
-  attr?: {
-    [key:string]:{point:IVertex, text:string, fontSize:number} } ;
+  attr?: IAttributeMap;
   handle: string;
   layer: string;
   ownerHandle: string;
   type: string;
   vertices: IVertex[];
   id?: string;
-  height?:number;
+  height?: number;
   parentId?: string;
   name?: string;
   position?: IVertex;
   rotation?: number;
-  color?:string
+  color?: string
   text?: string;
+}
+
+export type IAttributeMap = Record<string, IAttribute>;
+
+export interface IAttribute {
+  point: IVertex,
+  text: string,
+  fontSize: number
 }
 
 export interface ICircleEntity extends IEntity {
@@ -77,7 +84,7 @@ export interface IHatchEntity extends IEntity {
   position: IVertex;
   seedPointsCount: number;
   solidFill: boolean;
-  color?:string
+  color?: string
 }
 
 export interface ITextEntity extends IEntity {

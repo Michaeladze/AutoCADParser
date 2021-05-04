@@ -1,5 +1,9 @@
 @import "~root-front/dist/styles/mixins";
 
+.rm-workplace__employee:not(:last-of-type) {
+  margin-bottom: 8px;
+}
+
 .rm-workplace__employee-main {
   display: flex;
   align-items: center;

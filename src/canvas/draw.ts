@@ -1,5 +1,5 @@
 import {
-  IArcEntity, IBlock, IEntity, IHatchEntity, ITextEntity
+  IArcEntity, IAttributeMap, IBlock, IEntity, IHatchEntity, ITextEntity
 } from '../types/types';
 
 import * as paper from 'paper';
@@ -12,7 +12,7 @@ import { drawPath } from './entities/path';
 import { drawHatch } from './entities/hatch';
 import { drawText } from './entities/text';
 
-export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string, paper.Layer>, block?: IBlock, entities?: IEntity[]) {
+export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string, paper.Layer>, block?: IBlock, entities?: IEntity[], onWorkplaceClick?: (attribute: IAttributeMap) => void) {
 
   statistics[entity.type] ? (statistics[entity.type] += 1) : (statistics[entity.type] = 1);
   statisticsFull[entity.layer + '/' + entity.type] ? (statisticsFull[entity.layer + '/' + entity.type] += 1) : (statisticsFull[entity.layer + '/' + entity.type] = 1);
@@ -40,7 +40,7 @@ export function drawEntity(entity: IEntity, scale: IScale, layers: Record<string
     // drawEllipse(entity as IEllipseEntity, scale);
     break;
   case 'HATCH':
-    drawHatch(entity as IHatchEntity, scale, !!block, layers);
+    drawHatch(entity as IHatchEntity, scale, !!block, layers, onWorkplaceClick);
     break;
   case 'MTEXT':
     drawText(entity as ITextEntity, scale, !!block, layers);

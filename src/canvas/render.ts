@@ -1,4 +1,5 @@
 import {
+  IAttributeMap,
   IBlock, IDxf, IEntity, ISchema
 } from '../types/types';
 import paper from 'paper';
@@ -15,7 +16,7 @@ import { globalZoom, zoom } from './zoom/zoom';
 export const statistics: any = {};
 export const statisticsFull: any = {};
 
-export const init = (dxf: IDxf): ISchema => {
+export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) => void): ISchema => {
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -107,7 +108,7 @@ export const init = (dxf: IDxf): ISchema => {
             // }
             blockEntity.attr = entity.attr;
 
-            ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, block);
+            ['HATCH'].includes(blockEntity.type) && drawEntity(blockEntity, scale, layers, block, undefined, onWorkplaceClick);
           } else {
             drawEntity(blockEntity, scale, layers, block);
           }

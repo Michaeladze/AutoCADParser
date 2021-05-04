@@ -6,7 +6,7 @@ import DxfParser from './dxf-parser/src';
 import CanvasActions from './components/molecules/CanvasActions';
 import AsideContainer from './components/organisms/AsideContainer';
 import CanvasLegend from './components/molecules/CanvasLegend';
-import { ISchema } from './types/types';
+import { IAttributeMap, ISchema } from './types/types';
 
 const App: React.FC = () => {
   const { pathname } = useLocation();
@@ -23,7 +23,16 @@ const App: React.FC = () => {
         dxf.blocks[e.name].parentId = e.parentId;
       }
     });
-    const schema = init(dxf);
+
+    const onWorkplaceClick = (attributes: IAttributeMap) => {
+      console.log(attributes);
+      const roomArray = attributes['помещение'].text.split(' ');
+      const room = roomArray.length > 0 ? roomArray[0] : '';
+      const number = `${room}.${attributes['номер'].text}`;
+      history.push(`${pathname}?table=${attributes['ключ'].text}&number=${number}`);
+    };
+
+    const schema = init(dxf, onWorkplaceClick);
 
     if (schema) {
       setSchema(schema);

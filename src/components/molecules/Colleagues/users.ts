@@ -123,7 +123,7 @@ export const usersMocks: IUser[] = [
         unitTypeDesc: 'Unit description 7'
       }
     ],
-    photo: ''
+    photo: 'https://www.uokpl.rs/fpng/d/237-2377642_businessperson-png-download.png'
   },
   {
     id: '#000009',
