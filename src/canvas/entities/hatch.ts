@@ -148,51 +148,6 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
     });
 
-    // const paaa = new paper.Path.Circle({
-    //   center: [scale.x(entity.attr ? entity.attr['помещение'].point.x : 0), scale.y(entity.attr ? entity.attr['помещение'].point.y : 0)],
-    //   radius: 2,
-    //   strokeColor: 'red'
-    // });
-    // layers.items.addChild(paaa);
-    // if (entity.layer === '0') {
-    //   // @ts-ignore
-    //   path.fillColor = '#efefef';
-    //   path.sendToBack();
-    //   return;
-    // }
-
-    // if (isWorkplaceFill) {
-    //   // @ts-ignore
-    //   path.strokeColor = 'rgb(147, 149, 152)';
-    //   // @ts-ignore
-    //   path.fillColor = 'white';
-    //
-    //   path.onClick = () => {
-    //     if (activeEntity) {
-    //       activeEntity.fillColor = 'white';
-    //     }
-    //
-    //     activeEntity = path;
-    //     activeEntity.fillColor = '#00b894';
-    //     console.log(entity);
-    //   };
-    //
-    //   path.onMouseEnter = () => {
-    //     hoverEntity = path;
-    //     hoverEntity.fillColor = '#fab1a0';
-    //   };
-    //
-    //   path.onMouseLeave = () => {
-    //     if (hoverEntity && path !== activeEntity) {
-    //       hoverEntity.fillColor = 'white';
-    //     }
-    //   };
-    //
-    //   layers.tables.addChild(path);
-    //
-    //   return;
-    // }
-
     /** todo при нажатии на область надо нормально смасштабировать*/
     if (entity.handle === 'place') {
       layers.rooms.addChild(path);
@@ -211,19 +166,26 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
           return;
         }
 
+        const OFFSET_LEFT = 368;
+        const OFFSET_TOP = 24;
+        const OFFSET_BOTTOM = 24;
+
         const { width, height } = container.getBoundingClientRect();
+        const viewportWidth = width - OFFSET_LEFT;
+        const viewportHeight = height - OFFSET_TOP - OFFSET_BOTTOM;
 
         const center: IVertex = findCenter(entity.vertices, scale);
+        center.x -= scale.x(OFFSET_LEFT);
         const { xDomain, yDomain } = findRangesFromPoints(entity.vertices);
 
         const roomWidth = xDomain[1] - xDomain[0];
         const roomHeight = yDomain[1] - yDomain[0];
 
-        const rx = width / scale.scale(roomWidth);
-        const ry = height / scale.scale(roomHeight);
+        const rx = viewportWidth / scale.scale(roomWidth);
+        const ry = viewportHeight / scale.scale(roomHeight);
 
         paper.view.center = new paper.Point(center);
-        paper.view.zoom = Math.min(rx, ry);
+        paper.view.zoom = Math.min(2, Math.min(rx, ry));
 
         console.log(entity);
       };
