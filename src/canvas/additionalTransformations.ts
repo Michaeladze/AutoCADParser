@@ -57,13 +57,17 @@ export const drawNumbers = (
   en.type = 'MTEXT';
   // немного увеличиваем шрифт
   en.height = number.fontSize + 20;
-  drawEntity(en, scale, layers, undefined);
+  drawEntity({
+    entity: en,
+    scale,
+    layers
+  });
 };
 // =========================================================================================================================================
 
 /** превращает полилайн в hatch*/
-export const changePolyline = (entity: IHatchEntity, entities?: IFiltredEntities) => {
-
+export const changePolyline = (en: IEntity, entities?: IFiltredEntities):IHatchEntity => {
+  const entity = en as IHatchEntity;
   entity.boundaries = [[]];
 
   let start: IVertex | undefined;
@@ -130,8 +134,8 @@ export const changePolyline = (entity: IHatchEntity, entities?: IFiltredEntities
   path.remove();
 
   entity.color = entity.handle === 'place' ? new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d' : '#ffffff00';
-
-  return entity;
+  entity.type = 'HATCH';
+  return entity as IHatchEntity;
 };
 
 // =========================================================================================================================================

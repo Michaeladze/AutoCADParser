@@ -31,7 +31,7 @@ export interface IEntity {
   id?: string;
   height?: number;
   parentId?: string;
-  name?: string;
+  name: string;
   position?: IVertex;
   rotation?: number;
   color?: string
