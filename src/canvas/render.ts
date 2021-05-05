@@ -16,7 +16,12 @@ import { globalZoom, zoom } from './zoom/zoom';
 export const statistics: any = {};
 export const statisticsFull: any = {};
 
+export interface IFiltredEntities{
+  markers:IEntity[],
+  places:IEntity[]
+}
 export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) => void): ISchema => {
+
   // ==============================CANVAS===============================================================================
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -68,14 +73,22 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
   });
 
   console.log(actEntities);
-  const places = actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'));
+
+  const filtredEntities:IFiltredEntities = {
+    markers: actEntities.filter((en) => (~en.layer.toLowerCase().indexOf('марки')) && en.type === 'INSERT'),
+    places: actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'))
+  };
 
   actEntities.forEach((entity: IEntity) => {
-    if (!renderLayer(entity)) {
+    if (!renderLayer(entity) ||
+      (~entity.layer.toLowerCase().indexOf('марки') && entity.type !== 'MTEXT')
+    ) {
       return;
     }
 
     if (entity.type === 'INSERT' && entity.name) {
+
+
       const block = dxf.blocks[entity.name];
 
       if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
@@ -120,7 +133,8 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
         entity.position?.y ? entity.position.y = entity.position.y - (entity.height || 0) : entity.position?.y;
       }
 
-      drawEntity(entity, scale, layers, undefined, places);
+
+      drawEntity(entity, scale, layers, undefined, filtredEntities);
     }
   });
 

@@ -21,8 +21,8 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
   const x1 = scale.x(entity.position.x);
   const y1 = scale.y(entity.position.y);
   // кооординату рабочего места смещаем на половину радиуса
-  const deltaX = (x1 - center.x) / 2;
-  const deltaY = (y1 - center.y) / 2;
+  const deltaX = (x1 - center.x) / 1.2;
+  const deltaY = (y1 - center.y) / 1.2;
   center = {
     x: center.x - deltaX,
     y: center.y - deltaY,
@@ -37,7 +37,7 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
   const group = new paper.Group();
   const clippedCircle = new paper.Path.Circle({
     center: [center.x, center.y],
-    radius: scale.scale(440),
+    radius: scale.scale(460),
   });
 
   group.insertChild(0, clippedCircle);
@@ -56,7 +56,7 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
   if ( [0, 1, 4].includes(workplaceType) || !myStream) {
     group.insertChild(1, new paper.Path.Circle({
       center: [center.x, center.y],
-      radius: scale.scale(440),
+      radius: scale.scale(400),
       fillColor: myStream && workplaceType ? (workplaceType === 4) ? '#00B7A9' : '#3A85FF' : '#B1B5BB'
     }));
     group.insertChild(
@@ -77,24 +77,37 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
     raster.source = 'https://www.uokpl.rs/fpng/d/237-2377642_businessperson-png-download.png';
     raster.position = new paper.Point(center);
     raster.scale(scale.scale(1.5));
-    group.addChild(raster);
-  } else if ([3].includes(workplaceType)) {
 
-    group.insertChild(1, new paper.Path.Arc({
-      from: [center.x, center.y + scale.scale(440) ],
-      through: [center.x + scale.scale(440), center.y ],
-      to: [center.x, center.y - scale.scale(440)],
-      fillColor: '#00B7A9'
+    group.insertChild(1, raster );
+    group.insertChild(2, new paper.Path.Circle({
+      center: [center.x, center.y],
+      radius: scale.scale(500),
+      strokeColor: '#C4C4C4',
+
+      strokeWidth: 6
+    }) );
+  } else if ([3].includes(workplaceType)) {
+    group.insertChild(1, new paper.Path.Circle({
+      center: [center.x, center.y],
+      radius: scale.scale(500),
+      fillColor: 'white'
     }) );
 
     group.insertChild(2, new paper.Path.Arc({
-      from: [center.x, center.y + scale.scale(440) ],
-      through: [center.x - scale.scale(440), center.y ],
-      to: [center.x, center.y - scale.scale(440)],
+      from: [center.x, center.y + scale.scale(400) ],
+      through: [center.x + scale.scale(400), center.y ],
+      to: [center.x, center.y - scale.scale(400)],
+      fillColor: '#00B7A9'
+    }) );
+
+    group.insertChild(3, new paper.Path.Arc({
+      from: [center.x, center.y + scale.scale(400) ],
+      through: [center.x - scale.scale(400), center.y ],
+      to: [center.x, center.y - scale.scale(400)],
       fillColor: '#A56EFF'
     }) );
     group.insertChild(
-      3,
+      4,
       new paper.PointText({
         // 85 - случайное число
         point: [center.x, center.y + scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
@@ -135,7 +148,12 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
     });
 
-
+    // const paaa = new paper.Path.Circle({
+    //   center: [scale.x(entity.attr ? entity.attr['помещение'].point.x : 0), scale.y(entity.attr ? entity.attr['помещение'].point.y : 0)],
+    //   radius: 2,
+    //   strokeColor: 'red'
+    // });
+    // layers.items.addChild(paaa);
     // if (entity.layer === '0') {
     //   // @ts-ignore
     //   path.fillColor = '#efefef';
@@ -174,6 +192,7 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
     //
     //   return;
     // }
+
     /** todo при нажатии на область надо нормально смасштабировать*/
     if (entity.handle === 'place') {
       layers.rooms.addChild(path);
@@ -205,6 +224,8 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
 
         paper.view.center = new paper.Point(center);
         paper.view.zoom = Math.min(rx, ry);
+
+        console.log(entity);
       };
       return;
     }

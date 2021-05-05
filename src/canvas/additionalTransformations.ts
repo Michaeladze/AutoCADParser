@@ -9,6 +9,7 @@ import { RandomColor } from '../dxf-parser/src/colors';
 import paper from 'paper';
 import { calculatePoints, findCenter } from './helpers';
 import { IScale } from '../types/helper.types';
+import { IFiltredEntities } from './render';
 // =========================================================================================================================================
 
 export const checkSeats = (entity: IEntity): boolean => {
@@ -61,7 +62,7 @@ export const drawNumbers = (
 // =========================================================================================================================================
 
 /** превращает полилайн в hatch*/
-export const changePolyline = (entity: IHatchEntity, entities?: IEntity[]) => {
+export const changePolyline = (entity: IHatchEntity, entities?: IFiltredEntities) => {
 
   entity.boundaries = [[]];
 
@@ -93,7 +94,7 @@ export const changePolyline = (entity: IHatchEntity, entities?: IEntity[]) => {
   path.closePath();
 
 
-  entities?.forEach((pl) => {
+  entities?.places.forEach((pl) => {
     let test = false;
     test = !test ? path.contains(new paper.Point( (pl.position?.x || 0), (pl.position?.y || 0) )) : true;
     test = !test ? path.contains(new paper.Point(pl.position?.x || 0, (pl.position?.y || 0) - 1)) : true;
@@ -106,9 +107,25 @@ export const changePolyline = (entity: IHatchEntity, entities?: IEntity[]) => {
     test = !test ? path.contains(new paper.Point((pl.position?.x || 0) - 1, (pl.position?.y || 0) - 1)) : true;
 
 
-    test && (entity.handle = 'place');
-
+    if (test) {
+      entity.handle = 'place';
+      !entity.attr && (entity.attr = {});
+      pl.attr && pl.attr['помещение'] && ( entity.attr['помещение'] = pl.attr['помещение'] );
+    }
   });
+
+  // добавляем марки помещений
+  if (entity.handle === 'place' ) {
+    entities?.markers.forEach(mark => {
+      if ( path.contains(new paper.Point(mark.position?.x || 0, mark.position?.y || 0)) &&
+        entity.attr && ~entity.attr['помещение'].text.indexOf(mark.attr ? mark.attr['номер'].text : '')
+      ) {
+        !entity.marks && (entity.marks = []);
+        entity.marks.push(mark);
+      }
+
+    });
+  }
 
   path.remove();
 
