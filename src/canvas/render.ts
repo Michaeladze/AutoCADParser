@@ -2,7 +2,7 @@ import {
   IAttributeMap, IDxf, IEntity, IHatchEntity, ISchema
 } from '../types/types';
 import { drawEntity, IDraw } from './draw';
-import { renderLayer } from './helpers';
+// import { renderLayer } from './helpers';
 import {
   changePolyline,
   checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
@@ -21,7 +21,6 @@ export let mainDraw:MainDraw;
 
 export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) => void): ISchema => {
 
-  // ==============================CANVAS===============================================================================
   mainDraw = new MainDraw(dxf);
 
   if ( !mainDraw.isReady) {
@@ -33,9 +32,7 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
   // отрисовка примитивов
   mainDraw.entities.forEach((entity: IEntity) => {
     // проверяем нужно ли отрисовывать слой и исключаем слой 'марки' кроме текстов(его обработаем отдельно в POLYLINE)
-    if (!renderLayer(entity) ||
-      (~entity.layer.toLowerCase().indexOf('марки') && entity.type !== 'MTEXT')
-    ) {
+    if (~entity.layer.toLowerCase().indexOf('марки') && entity.type !== 'MTEXT') {
       return;
     }
 
@@ -43,7 +40,6 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
     if (entity.type === 'INSERT') {
       drawInsert({
         entity,
-
         block: dxf.blocks[entity.name],
         onWorkplaceClick
       });

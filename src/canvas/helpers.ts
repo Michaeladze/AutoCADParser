@@ -1,6 +1,6 @@
 import { IEntity, IVertex } from '../types/types';
 import { IRanges, IScale } from '../types/helper.types';
-import { showLayers } from './config';
+
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -120,7 +120,3 @@ export function rotatePoint(pivot: IVertex, angle: number, point: IVertex): IVer
 }
 
 // =========================================================================================================================================
-
-export const renderLayer = (entity: IEntity): boolean => {
-  return showLayers[entity.layer];
-};

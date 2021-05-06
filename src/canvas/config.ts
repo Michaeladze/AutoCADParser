@@ -1,7 +1,7 @@
 import {
   IBounds, IDxf, IEntity, IVertex
 } from '../types/types';
-import { findRanges, renderLayer } from './helpers';
+import { findRanges } from './helpers';
 import paper from 'paper';
 import { globalZoom } from './zoom/zoom';
 import { IRanges, IScale } from '../types/helper.types';
@@ -27,7 +27,7 @@ import { IFiltredEntities } from './render';
 //   'Невидимые линии': false,
 //   'Основные надписи': false
 // };
-export const showLayers: Record<string, boolean> = {
+const showLayersAutocad: Record<string, boolean> = {
   '0': false,
   'АР_Двери': true,
   'АР_Ниши ПК': false,
@@ -67,80 +67,94 @@ const layers = ():Record<string, paper.Layer> => {
   l.tab.bringToFront();
   return l;
 };
+const scaleInit = {
+  x: () => 1,
+  y: () => 1,
+  scale: () => 1,
+  scalePoint: () => ({}as IVertex)
+};
 
 export class MainDraw {
-  public showLayers=showLayers
+  // ========================= Public=========================
+  /** доступные слои в  */
+  public showLayersAutocad=showLayersAutocad
+  /** если класс успешно создался true */
   public isReady=false
+  /** доступные слои paper */
   public layers:Record<string, paper.Layer>={}
-  public scale:IScale={
-    x: () => 1,
-    y: () => 1,
-    scale: () => 1,
-    scalePoint: () => ({}as IVertex)
-  }
-public entities:IEntity[]=[]
-public selection:IFiltredEntities={
-  markers: [],
-  places: []
-}
-
-// ========================= initialization=========================
-constructor(dxf: IDxf) {
-  this.dxf = dxf;
-
-  this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
-
-  if (!this.canvas) {
-    this.fail();
-    return;
+  /** функции масштабирования координат
+   * x-по шкале x
+   * y-по шкале y
+   * scale для скалярных величин(радиус)
+   * scalePoint для точек
+   * */
+  public scale:IScale=scaleInit
+  /** отфильтрованные объекты для отрисовки */
+  public entities:IEntity[]=[]
+  /** выборки для улучшения визуала */
+  public selection:IFiltredEntities={
+    markers: [],
+    places: []
   }
 
-  this.isReady = true;
-  paper.setup(this.canvas);
-  this.layers = layers();
-  this.scale = this.calcScale();
-  globalZoom();
-  // объединяем линии в поли линии
-  this.entities = simplifyBlock(dxf.entities.filter((en) => renderLayer(en)));
-  this.selection = {
-    markers: this.entities.filter((en) => (~en.layer.toLowerCase().indexOf('марки')) && en.type === 'INSERT'),
-    places: this.entities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'))
-  };
+  // ========================= initialization=========================
+  constructor(dxf: IDxf) {
+    this.dxf = dxf;
 
-}
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
+
+    if (!this.canvas) {
+      this.fail();
+      return;
+    }
+
+    this.isReady = true;
+    paper.setup(this.canvas);
+    this.layers = layers();
+    this.scale = this.calcScale();
+    globalZoom();
+    // объединяем линии в поли линии
+    this.entities = simplifyBlock(dxf.entities.filter((en) => this.showLayersAutocad[en.layer]));
+    this.selection = {
+      markers: this.entities.filter((en) => (~en.layer.toLowerCase().indexOf('марки')) && en.type === 'INSERT'),
+      places: this.entities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'))
+    };
+
+  }
+  // ========================= Private=========================
+  /** текущий канвас */
   private readonly canvas:HTMLCanvasElement= {} as HTMLCanvasElement
+  /** сырые данные */
   private dxf:IDxf
+  /** вычисляет параметры масштабирования*/
+  private calcScale =():IScale => {
+    const ranges: IRanges = findRanges(this.dxf.entities);
+    const { xDomain, yDomain } = ranges;
+    const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
+    const container = document.getElementById('canvas-container') as HTMLElement;
+    const { height } = container.getBoundingClientRect();
+    const scale = (c:number) => c * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]) * 1.35;
+    const x = (c:number ) => 368 + (c - ranges.xDomain[0]) * height * ratio / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
+    const y = (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]));
+    return {
+      x,
+      y,
+      scale,
+      scalePoint: ((point:IVertex ) => ({
+        x: x(point.x),
+        y: y(point.y),
+        z: scale(point.z)
+      })
 
-private calcScale =():IScale => {
-  const ranges: IRanges = findRanges(this.dxf.entities);
-  const { xDomain, yDomain } = ranges;
-  const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const container = document.getElementById('canvas-container') as HTMLElement;
-  const { height } = container.getBoundingClientRect();
+      )
+    };
+  }
+  /** в случае фейла */
+  private fail=() => {
+    console.error('==================================');
+    console.error('fatal class error');
+    console.error('==================================');
 
-
-  const scale = (c:number) => c * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]) * 1.35;
-  const x = (c:number ) => 368 + (c - ranges.xDomain[0]) * height * ratio / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
-  const y = (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]));
-  return {
-    x,
-    y,
-    scale,
-    scalePoint: ((point:IVertex ) => ({
-      x: x(point.x),
-      y: y(point.y),
-      z: scale(point.z)
-    })
-
-    )
-  };
-}
-
-private fail=() => {
-  console.error('==================================');
-  console.error('fatal class error');
-  console.error('==================================');
-
-}
+  }
 
 }
