@@ -40,9 +40,6 @@ export function drawEntity({ entity, scale, layers, block, onWorkplaceClick }:ID
   case 'ARC':
     drawArc(entity as IArcEntity, scale, !!block, layers);
     break;
-  case 'ELLIPSE':
-    // drawEllipse(entity as IEllipseEntity, scale);
-    break;
   case 'HATCH':
     drawHatch(entity as IHatchEntity, scale, !!block, layers, onWorkplaceClick);
     break;

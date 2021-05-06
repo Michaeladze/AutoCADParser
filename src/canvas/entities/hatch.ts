@@ -9,6 +9,7 @@ import {
   calculatePoints, findCenter, findRangesFromPoints
 } from '../helpers';
 
+
 let activeEntity: paper.Group|undefined = undefined;
 const hoverEntity: any = undefined;
 
@@ -142,11 +143,28 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
       drawWorkPlaces(entity, points, scale, layers, onWorkplaceClick);
       return;
     }
-
+    //
+    // if (entity.centralPoint) {
+    //   const group = new paper.Group();
+    //   // debugger;
+    //   const h = 2000;
+    //   const w = 7000;
+    //   group.addChild(new paper.Path.Rectangle({
+    //     point: new paper.Point(scale.x(entity.centralPoint.x - w / 2), scale.y(entity.centralPoint.y + h / 2)),
+    //     size: new paper.Size(scale.scale(w), scale.scale(h)),
+    //     radius: 12,
+    //     fillColor: 'white',
+    //     shadowBlur: 10,
+    //     shadowColor: new paper.Color(0, 0, 0, 0.1)
+    //   }));
+    //
+    //   layers.tab.addChild(group);
+    // }
 
     points.forEach((point: IVertex) => {
       path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
     });
+
 
     /** todo при нажатии на область надо нормально смасштабировать*/
     if (entity.handle === 'place') {
@@ -186,6 +204,15 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
 
         paper.view.center = new paper.Point(center);
         paper.view.zoom = Math.min(2, Math.min(rx, ry));
+
+        // if (paper.view.zoom < 1.3) {
+        //   paper.projects[0].layers[3].visible = false;
+        //   paper.projects[0].layers[4].visible = true;
+        //
+        // } else {
+        //   paper.projects[0].layers[3].visible = true;
+        //   paper.projects[0].layers[4].visible = false;
+        // }
 
         console.log(entity);
       };

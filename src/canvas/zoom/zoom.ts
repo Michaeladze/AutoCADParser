@@ -13,6 +13,7 @@ export const globalZoom = () => paper.PaperScript.execute(`
       };
     const ZOOM_FACTOR = 1.14;
     canvas.addEventListener('wheel', (event) => {
+
     const oldZoom = paper.view.zoom;
     const oldCenter = paper.view.center;
     // Get mouse position.
@@ -23,9 +24,19 @@ export const globalZoom = () => paper.PaperScript.execute(`
       oldZoom / ZOOM_FACTOR :
       oldZoom * ZOOM_FACTOR;
     paper.view.zoom = newZoom;
-
+     
     // Update view position.
     paper.view.center += (mousePosition - oldCenter) * (1 - (oldZoom / newZoom));
+    // if(paper.view.zoom <1.3){
+    //     project.layers[3].visible= false
+    //     project.layers[4].visible= true
+    //
+    // }else{
+    //       project.layers[3].visible= true
+    //        project.layers[4].visible= false
+    // }
+    
+    
   });
   `, paper);
 
@@ -41,6 +52,15 @@ export const zoom = (factor: number) => {
   } else {
     newZoom = 1;
   }
+
+  // if (paper.view.zoom < 1.3) {
+  //   paper.projects[0].layers[3].visible = false;
+  //   paper.projects[0].layers[4].visible = true;
+  //
+  // } else {
+  //   paper.projects[0].layers[3].visible = true;
+  //   paper.projects[0].layers[4].visible = false;
+  // }
 
   paper.view.zoom = newZoom;
 };

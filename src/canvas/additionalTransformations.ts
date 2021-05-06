@@ -66,7 +66,7 @@ export const drawNumbers = (
 // =========================================================================================================================================
 
 /** превращает полилайн в hatch*/
-export const changePolyline = (en: IEntity, entities?: IFiltredEntities):IHatchEntity => {
+export const changePolyline = (en: IEntity, entities?: IFiltredEntities, scale?:IScale):IHatchEntity => {
   const entity = en as IHatchEntity;
   entity.boundaries = [[]];
 
@@ -90,6 +90,8 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities):IHatchE
   }
 
   entity.boundaries[0].push(start as IVertex, entity.vertices[0]);
+
+
   const path = new paper.Path();
   entity.vertices.forEach(it => {
 
@@ -97,6 +99,8 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities):IHatchE
   });
   path.closePath();
 
+  console.log(path.bounds);
+  // debugger;
 
   entities?.places.forEach((pl) => {
     let test = false;
@@ -131,7 +135,20 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities):IHatchE
     });
   }
 
+
+  scale && entity.handle === 'place' && (entity.centralPoint = {
+    x: path.bounds.center.x,
+    y: path.bounds.center.y,
+    z: 0
+  });
+
+  // new paper.Path.Circle({
+  //   center: [scale.x(path.bounds.center.x), scale.y(path.bounds.center.y)],
+  //   radius: 2,
+  //   strokeColor: 'red'
+  // });
   path.remove();
+
 
   entity.color = entity.handle === 'place' ? new RandomColor('#f1d407', 'rgb(6,91,236)').getColor() + '2d' : '#ffffff00';
   entity.type = 'HATCH';

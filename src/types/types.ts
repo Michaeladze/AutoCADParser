@@ -75,6 +75,7 @@ export interface IArcEntity extends IEntity {
 
 export interface IHatchEntity extends IEntity {
   marks?:IEntity[]
+  centralPoint?:IVertex
   associativity: false
   boundaries: IVertex[][];
   boundaryPathsCount: number;

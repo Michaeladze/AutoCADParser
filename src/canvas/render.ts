@@ -20,6 +20,7 @@ export interface IFiltredEntities{
   markers:IEntity[],
   places:IEntity[]
 }
+
 export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) => void): ISchema => {
 
   // ==============================CANVAS===============================================================================
@@ -38,8 +39,10 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
   const layers: Record<string, paper.Layer> = {
     tables: new paper.Layer(),
     rooms: new paper.Layer(),
+    // text: new paper.Layer({ visible: false }),
     text: new paper.Layer(),
-    items: new paper.Layer()
+    items: new paper.Layer(),
+    tab: new paper.Layer()
   };
 
   // ++++++++++++++++
@@ -94,7 +97,7 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
 
     // делаем HATCH из полилайнов и отрисовываем метки для них
     if (entity.type === 'LWPOLYLINE') {
-      entity = changePolyline(entity, filtredEntities);
+      entity = changePolyline(entity, filtredEntities, scale);
 
       const marks = (entity as IHatchEntity).marks || [];
       marks.forEach(m => {
@@ -115,9 +118,11 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
 
   });
 
+  layers.items.bringToFront();
   layers.rooms.bringToFront();
   layers.tables.bringToFront();
   layers.text.bringToFront();
+  layers.tab.bringToFront();
 
   console.warn('================================STATISTICS==================================');
   console.log(statistics);
@@ -126,6 +131,7 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
 
   return { zoom };
 };
+
 
 // =========================================================================================================================================
 /** обрабатываем INSERT*/
