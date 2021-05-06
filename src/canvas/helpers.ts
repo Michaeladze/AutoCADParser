@@ -38,18 +38,6 @@ export function calculatePoints(vertices: IVertex[], position?: IVertex, rotatio
   return points;
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-
-export const getScales_my = (ranges: IRanges, width: number, height: number, offsetX: number, offsetY: number): IScale => ({
-  x: (c:number ) => offsetX + (c - ranges.xDomain[0]) * width / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]),
-  y: (c:number ) => offsetY + height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0])),
-  scale: (c:number) => {
-
-    const ratio = height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]);
-
-    return c * ratio * 1.35;
-  }
-});
 
 // ---------------------------------------------------------------------------------------------------------------------
 

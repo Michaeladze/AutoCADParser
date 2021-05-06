@@ -1,8 +1,8 @@
 import { ITextEntity } from '../../types/types';
-import { IScale } from '../../types/helper.types';
 import paper from 'paper';
+import { mainDraw } from '../render';
 
-export function drawText(entity: ITextEntity, scale: IScale, insert = false, layers: Record<string, paper.Layer>) {
+export function drawText(entity: ITextEntity, insert = false, ) {
   if (entity.layer === 'АР_Офисная мебель') {
     return;
   }
@@ -28,13 +28,13 @@ export function drawText(entity: ITextEntity, scale: IScale, insert = false, lay
   }
 
   const point = new paper.PointText({
-    point: [scale.x(entity.position.x), scale.y(entity.position.y)],
+    point: [ mainDraw.scale.x(entity.position.x), mainDraw.scale.y(entity.position.y)],
     content: text,
     fillColor: 'black',
     fontFamily: 'Roboto',
     fontWeight: 'normal',
-    fontSize: `${scale.scale(entity.height)}px`
+    fontSize: `${mainDraw.scale.scale(entity.height)}px`
   });
 
-  layers.text.addChild(point);
+  mainDraw.layers.text.addChild(point);
 }

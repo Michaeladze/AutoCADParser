@@ -3,11 +3,11 @@
 import {
   IAttributeMap, IHatchEntity, IVertex
 } from '../../types/types';
-import { IScale } from '../../types/helper.types';
 import paper from 'paper';
 import {
   calculatePoints, findCenter, findRangesFromPoints
 } from '../helpers';
+import { mainDraw } from '../render';
 
 
 let activeEntity: paper.Group|undefined = undefined;
@@ -16,11 +16,16 @@ const hoverEntity: any = undefined;
 const places = {};
 
 
-function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, layers:Record<string, paper.Layer>, onWorkplaceClick?: (attribute: IAttributeMap) => void) {
+function drawWorkPlaces(
+  entity:IHatchEntity,
+  points:IVertex[],
 
-  let center: IVertex = findCenter(points, scale);
-  const x1 = scale.x(entity.position.x);
-  const y1 = scale.y(entity.position.y);
+  onWorkplaceClick?: (attribute: IAttributeMap) => void
+) {
+
+  let center: IVertex = findCenter(points, mainDraw.scale);
+  const x1 = mainDraw.scale.x(entity.position.x);
+  const y1 = mainDraw.scale.y(entity.position.y);
   // кооординату рабочего места смещаем на половину радиуса
   const deltaX = (x1 - center.x) / 1.2;
   const deltaY = (y1 - center.y) / 1.2;
@@ -38,7 +43,7 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
   const group = new paper.Group();
   const clippedCircle = new paper.Path.Circle({
     center: [center.x, center.y],
-    radius: scale.scale(460),
+    radius: mainDraw.scale.scale(460),
   });
 
   group.insertChild(0, clippedCircle);
@@ -51,25 +56,25 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
     // activeEntity.fillColor = '#00b894';
     onWorkplaceClick && entity.attr && onWorkplaceClick(entity.attr);
   };
-  layers.text.addChild(group);
+  mainDraw.layers.text.addChild(group);
 
   // =============PRIMITIVES==================
   if ( [0, 1, 4].includes(workplaceType) || !myStream) {
     group.insertChild(1, new paper.Path.Circle({
       center: [center.x, center.y],
-      radius: scale.scale(400),
+      radius: mainDraw.scale.scale(400),
       fillColor: myStream && workplaceType ? (workplaceType === 4) ? '#00B7A9' : '#3A85FF' : '#B1B5BB'
     }));
     group.insertChild(
       2,
       new paper.PointText({
       // 85 - случайное число
-        point: [center.x, center.y + scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
+        point: [center.x, center.y + mainDraw.scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
         content: entity.attr ? entity.attr['номер'].text : '',
         fillColor: 'white',
         fontFamily: 'Roboto',
         fontWeight: 'normal',
-        fontSize: `${scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
+        fontSize: `${mainDraw.scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
         justification: 'center'
       })
     );
@@ -77,12 +82,12 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
     const raster = new paper.Raster();
     raster.source = 'https://www.uokpl.rs/fpng/d/237-2377642_businessperson-png-download.png';
     raster.position = new paper.Point(center);
-    raster.scale(scale.scale(1.5));
+    raster.scale(mainDraw.scale.scale(1.5));
 
     group.insertChild(1, raster );
     group.insertChild(2, new paper.Path.Circle({
       center: [center.x, center.y],
-      radius: scale.scale(500),
+      radius: mainDraw.scale.scale(500),
       strokeColor: '#C4C4C4',
 
       strokeWidth: 6
@@ -90,33 +95,33 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
   } else if ([3].includes(workplaceType)) {
     group.insertChild(1, new paper.Path.Circle({
       center: [center.x, center.y],
-      radius: scale.scale(500),
+      radius: mainDraw.scale.scale(500),
       fillColor: 'white'
     }) );
 
     group.insertChild(2, new paper.Path.Arc({
-      from: [center.x, center.y + scale.scale(400) ],
-      through: [center.x + scale.scale(400), center.y ],
-      to: [center.x, center.y - scale.scale(400)],
+      from: [center.x, center.y + mainDraw.scale.scale(400) ],
+      through: [center.x + mainDraw.scale.scale(400), center.y ],
+      to: [center.x, center.y - mainDraw.scale.scale(400)],
       fillColor: '#00B7A9'
     }) );
 
     group.insertChild(3, new paper.Path.Arc({
-      from: [center.x, center.y + scale.scale(400) ],
-      through: [center.x - scale.scale(400), center.y ],
-      to: [center.x, center.y - scale.scale(400)],
+      from: [center.x, center.y + mainDraw.scale.scale(400) ],
+      through: [center.x - mainDraw.scale.scale(400), center.y ],
+      to: [center.x, center.y - mainDraw.scale.scale(400)],
       fillColor: '#A56EFF'
     }) );
     group.insertChild(
       4,
       new paper.PointText({
         // 85 - случайное число
-        point: [center.x, center.y + scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
+        point: [center.x, center.y + mainDraw.scale.scale(entity.attr ? entity.attr['номер'].fontSize / 2 : 85)],
         content: entity.attr ? entity.attr['номер'].text : '',
         fillColor: 'white',
         fontFamily: 'Roboto',
         fontWeight: 'normal',
-        fontSize: `${scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
+        fontSize: `${mainDraw.scale.scale(entity.attr ? entity.attr['номер'].fontSize + 100 : 300 )}px`,
         justification: 'center'
       })
     );
@@ -125,7 +130,11 @@ function drawWorkPlaces(entity:IHatchEntity, points:IVertex[], scale:IScale, lay
 }
 
 
-export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, layers: Record<string, paper.Layer>, onWorkplaceClick?: (attribute: IAttributeMap) => void) {
+export function drawHatch(
+  entity: IHatchEntity,
+  insert: boolean,
+  onWorkplaceClick?: (attribute: IAttributeMap) => void
+) {
 
   const isWorkplaceFill = entity.layer === 'АР_Офисная мебель_Заливка РМ';
 
@@ -140,7 +149,7 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
     });
 
     if (isWorkplaceFill ) {
-      drawWorkPlaces(entity, points, scale, layers, onWorkplaceClick);
+      drawWorkPlaces(entity, points, onWorkplaceClick);
       return;
     }
     //
@@ -162,13 +171,13 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
     // }
 
     points.forEach((point: IVertex) => {
-      path.add(new paper.Point(scale.x(point.x), scale.y(point.y)));
+      path.add(new paper.Point(mainDraw.scale.x(point.x), mainDraw.scale.y(point.y)));
     });
 
 
     /** todo при нажатии на область надо нормально смасштабировать*/
     if (entity.handle === 'place') {
-      layers.rooms.addChild(path);
+      mainDraw.layers.rooms.addChild(path);
 
       path.onClick = () => {
 
@@ -192,15 +201,15 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
         const viewportWidth = width - OFFSET_LEFT;
         const viewportHeight = height - OFFSET_TOP - OFFSET_BOTTOM;
 
-        const center: IVertex = findCenter(entity.vertices, scale);
-        center.x -= scale.x(OFFSET_LEFT);
+        const center: IVertex = findCenter(entity.vertices, mainDraw.scale);
+        center.x -= mainDraw.scale.x(OFFSET_LEFT);
         const { xDomain, yDomain } = findRangesFromPoints(entity.vertices);
 
         const roomWidth = xDomain[1] - xDomain[0];
         const roomHeight = yDomain[1] - yDomain[0];
 
-        const rx = viewportWidth / scale.scale(roomWidth);
-        const ry = viewportHeight / scale.scale(roomHeight);
+        const rx = viewportWidth / mainDraw.scale.scale(roomWidth);
+        const ry = viewportHeight / mainDraw.scale.scale(roomHeight);
 
         paper.view.center = new paper.Point(center);
         paper.view.zoom = Math.min(2, Math.min(rx, ry));
@@ -214,12 +223,12 @@ export function drawHatch(entity: IHatchEntity, scale: IScale, insert: boolean, 
         //   paper.projects[0].layers[4].visible = false;
         // }
 
-        console.log(entity);
+        // console.log(entity);
       };
       return;
     }
 
-    layers.items.addChild(path);
+    mainDraw.layers.items.addChild(path);
 
   });
 }

@@ -9,8 +9,8 @@ import { RandomColor } from '../dxf-parser/src/colors';
 import paper from 'paper';
 import { calculatePoints, findCenter } from './helpers';
 import { IScale } from '../types/helper.types';
-import { IFiltredEntities } from './render';
-// =========================================================================================================================================
+import { mainDraw } from './render';
+
 
 export const checkSeats = (entity: IEntity): boolean => {
   const puf = (entity.name && entity.name.toLowerCase().indexOf('пуф') >= 0) || false;
@@ -57,16 +57,14 @@ export const drawNumbers = (
   en.type = 'MTEXT';
   // немного увеличиваем шрифт
   en.height = number.fontSize + 20;
-  drawEntity({
-    entity: en,
-    scale,
-    layers
-  });
+  drawEntity({ entity: en, });
 };
 // =========================================================================================================================================
 
 /** превращает полилайн в hatch*/
-export const changePolyline = (en: IEntity, entities?: IFiltredEntities, scale?:IScale):IHatchEntity => {
+export const changePolyline = (en: IEntity):IHatchEntity => {
+
+
   const entity = en as IHatchEntity;
   entity.boundaries = [[]];
 
@@ -99,10 +97,10 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities, scale?:
   });
   path.closePath();
 
-  console.log(path.bounds);
+  // console.log(path.bounds);
   // debugger;
 
-  entities?.places.forEach((pl) => {
+  mainDraw.selection.places.forEach((pl) => {
     let test = false;
     test = !test ? path.contains(new paper.Point( (pl.position?.x || 0), (pl.position?.y || 0) )) : true;
     test = !test ? path.contains(new paper.Point(pl.position?.x || 0, (pl.position?.y || 0) - 1)) : true;
@@ -124,7 +122,7 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities, scale?:
 
   // добавляем марки помещений
   if (entity.handle === 'place' ) {
-    entities?.markers.forEach(mark => {
+    mainDraw.selection.markers.forEach(mark => {
       if ( path.contains(new paper.Point(mark.position?.x || 0, mark.position?.y || 0)) &&
         entity.attr && ~entity.attr['помещение'].text.indexOf(mark.attr ? mark.attr['номер'].text : '')
       ) {
@@ -136,7 +134,7 @@ export const changePolyline = (en: IEntity, entities?: IFiltredEntities, scale?:
   }
 
 
-  scale && entity.handle === 'place' && (entity.centralPoint = {
+  entity.handle === 'place' && (entity.centralPoint = {
     x: path.bounds.center.x,
     y: path.bounds.center.y,
     z: 0

@@ -1,17 +1,14 @@
 import {
   IAttributeMap, IDxf, IEntity, IHatchEntity, ISchema
 } from '../types/types';
-import paper from 'paper';
 import { drawEntity, IDraw } from './draw';
-import {
-  findRanges, getScales_my, renderLayer
-} from './helpers';
-import { IRanges, IScale } from '../types/helper.types';
+import { renderLayer } from './helpers';
 import {
   changePolyline,
   checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
 } from './additionalTransformations';
-import { globalZoom, zoom } from './zoom/zoom';
+import { zoom } from './zoom/zoom';
+import { MainDraw } from './config';
 
 export const statistics: any = {};
 export const statisticsFull: any = {};
@@ -20,56 +17,21 @@ export interface IFiltredEntities{
   markers:IEntity[],
   places:IEntity[]
 }
+export let mainDraw:MainDraw;
 
 export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) => void): ISchema => {
 
   // ==============================CANVAS===============================================================================
-  const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  mainDraw = new MainDraw(dxf);
 
-  if (!canvas) {
+  if ( !mainDraw.isReady) {
     return {} as ISchema;
   }
 
-  paper.setup(canvas);
-  globalZoom();
 
-  // ++++++++++++++++
-
-  /** Создаем слои */
-  const layers: Record<string, paper.Layer> = {
-    tables: new paper.Layer(),
-    rooms: new paper.Layer(),
-    // text: new paper.Layer({ visible: false }),
-    text: new paper.Layer(),
-    items: new paper.Layer(),
-    tab: new paper.Layer()
-  };
-
-  // ++++++++++++++++
-
-
-  const container = document.getElementById('canvas-container');
-
-  if (!container) {
-    return {} as ISchema;
-  }
-  // ++++++++++++++++
-
-  const { height } = container.getBoundingClientRect();
-
-  const ranges: IRanges = findRanges(dxf.entities);
-  const { xDomain, yDomain } = ranges;
-  const ratio = (xDomain[1] - xDomain[0]) / (yDomain[1] - yDomain[0]);
-  const scale: IScale = getScales_my(ranges, height * ratio, height, 368, 0);
-  // объединяем линии в поли линии
-  const actEntities = simplifyBlock(dxf.entities.filter((en) => renderLayer(en)));
-  const filtredEntities:IFiltredEntities = {
-    markers: actEntities.filter((en) => (~en.layer.toLowerCase().indexOf('марки')) && en.type === 'INSERT'),
-    places: actEntities.filter((en) => en.name && ~en.name.toLowerCase().indexOf('место'))
-  };
   // ++++++++++++++++
   // отрисовка примитивов
-  actEntities.forEach((entity: IEntity) => {
+  mainDraw.entities.forEach((entity: IEntity) => {
     // проверяем нужно ли отрисовывать слой и исключаем слой 'марки' кроме текстов(его обработаем отдельно в POLYLINE)
     if (!renderLayer(entity) ||
       (~entity.layer.toLowerCase().indexOf('марки') && entity.type !== 'MTEXT')
@@ -81,8 +43,7 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
     if (entity.type === 'INSERT') {
       drawInsert({
         entity,
-        scale,
-        layers,
+
         block: dxf.blocks[entity.name],
         onWorkplaceClick
       });
@@ -97,32 +58,22 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
 
     // делаем HATCH из полилайнов и отрисовываем метки для них
     if (entity.type === 'LWPOLYLINE') {
-      entity = changePolyline(entity, filtredEntities, scale);
+      entity = changePolyline(entity);
 
       const marks = (entity as IHatchEntity).marks || [];
       marks.forEach(m => {
         drawInsert({
           entity: m,
-          scale,
-          layers,
+
           block: dxf.blocks[m.name || '']
         });
       });
     }
 
-    drawEntity({
-      entity,
-      scale,
-      layers
-    });
+    drawEntity({ entity, });
 
   });
 
-  layers.items.bringToFront();
-  layers.rooms.bringToFront();
-  layers.tables.bringToFront();
-  layers.text.bringToFront();
-  layers.tab.bringToFront();
 
   console.warn('================================STATISTICS==================================');
   console.log(statistics);
@@ -135,9 +86,9 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
 
 // =========================================================================================================================================
 /** обрабатываем INSERT*/
-function drawInsert({ entity, scale, layers, block, onWorkplaceClick }:IDraw) {
+function drawInsert({ entity, block, onWorkplaceClick }:IDraw) {
   if (entity.attr && entity.attr['номер'] && entity.attr['номер'].fontSize > 3) {
-    drawNumbers(entity, scale, entity.attr['номер'], layers);
+    drawNumbers(entity, mainDraw.scale, entity.attr['номер'], mainDraw.layers);
   }
 
   if (block && block.entities) {
@@ -145,7 +96,7 @@ function drawInsert({ entity, scale, layers, block, onWorkplaceClick }:IDraw) {
 
     /** Сидячие места обрабатываются отдельно */
     if (checkSeats(entity)) {
-      replaceWorkPlaces(entity, block, scale, layers);
+      replaceWorkPlaces(entity, block, mainDraw.scale, mainDraw.layers);
       return;
     }
 
@@ -164,16 +115,14 @@ function drawInsert({ entity, scale, layers, block, onWorkplaceClick }:IDraw) {
         blockEntity.attr = entity.attr;
         ['HATCH'].includes(blockEntity.type) && drawEntity({
           entity: blockEntity,
-          scale,
-          layers,
+
           block,
           onWorkplaceClick
         });
       } else {
         drawEntity({
           entity: blockEntity,
-          scale,
-          layers,
+
           block
         });
       }
