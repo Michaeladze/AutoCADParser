@@ -1,6 +1,7 @@
 // функция ищет пуфы и стулья и заменяет их на кружки
 
 import {
+  IAttribute,
   IBlock, IEntity, IHatchEntity, ITextEntity, IVertex
 } from '../types/types';
 import { drawEntity } from './draw';
@@ -48,12 +49,16 @@ export const replaceWorkPlaces = (entity: IEntity, block: IBlock, scale: IScale,
 /** рисует цифры на рабочих местах*/
 export const drawNumbers = (
   entity: IEntity, scale: IScale,
-  number: { point: IVertex, text: string, fontSize: number },
+  number:IAttribute,
   layers: Record<string, paper.Layer>
 ) => {
   const en = { ...entity } as ITextEntity;
   en.text = number.text;
-  en.position = number.point;
+  en.position = number.point ? number.point : {
+    x: 0,
+    y: 0,
+    z: 0
+  };
   en.type = 'MTEXT';
   // немного увеличиваем шрифт
   en.height = number.fontSize + 20;

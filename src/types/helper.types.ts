@@ -6,7 +6,8 @@ export interface IRanges {
 }
 
 export interface IScale {
-  x: (x: number) => number;
+  k?:number,
+  x: (x: number, offset?:number) => number;
   y: (y: number) => number;
   scale: (scale: number) => number;
   scalePoint:(point:IVertex)=>IVertex;

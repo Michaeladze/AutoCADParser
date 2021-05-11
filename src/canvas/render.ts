@@ -7,7 +7,7 @@ import {
   changePolyline,
   checkSeats, drawNumbers, replaceWorkPlaces, simplifyBlock
 } from './additionalTransformations';
-import { zoom } from './zoom/zoom';
+
 import { MainDraw } from './config';
 
 export const statistics: any = {};
@@ -76,7 +76,7 @@ export const init = (dxf: IDxf, onWorkplaceClick?: (attributes: IAttributeMap) =
   console.log(statisticsFull);
   console.warn('============================================================================');
 
-  return { zoom };
+  return { zoom: mainDraw.zoom };
 };
 
 
@@ -118,7 +118,6 @@ function drawInsert({ entity, block, onWorkplaceClick }:IDraw) {
       } else {
         drawEntity({
           entity: blockEntity,
-
           block
         });
       }

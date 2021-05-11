@@ -3,7 +3,8 @@ import {
 } from '../types/types';
 import { findRanges } from './helpers';
 import paper from 'paper';
-import { globalZoom } from './zoom/zoom';
+
+import { zoom, globalZoom } from './zoom/zoom';
 import { IRanges, IScale } from '../types/helper.types';
 import { simplifyBlock } from './additionalTransformations';
 import { IFiltredEntities } from './render';
@@ -53,18 +54,19 @@ export const bounds: IBounds = {
 
 const layers = ():Record<string, paper.Layer> => {
   const l:Record<string, paper.Layer> = {
-    tables: new paper.Layer(),
-    rooms: new paper.Layer(),
+    workPlaces: new paper.Layer({ visible: true }),
+    rooms: new paper.Layer({ visible: true }),
     // text: new paper.Layer({ visible: false }),
-    text: new paper.Layer(),
-    items: new paper.Layer(),
-    tab: new paper.Layer()
+    text: new paper.Layer({ visible: true }),
+
+    items: new paper.Layer({ visible: true }),
+    informationBlocks: new paper.Layer({ visible: true })
   };
   l.items.bringToFront();
   l.rooms.bringToFront();
-  l.tables.bringToFront();
+  l.workPlaces.bringToFront();
   l.text.bringToFront();
-  l.tab.bringToFront();
+  l.informationBlocks.bringToFront();
   return l;
 };
 const scaleInit = {
@@ -73,6 +75,7 @@ const scaleInit = {
   scale: () => 1,
   scalePoint: () => ({}as IVertex)
 };
+
 
 export class MainDraw {
   // ========================= Public=========================
@@ -96,7 +99,20 @@ export class MainDraw {
     markers: [],
     places: []
   }
-
+  /** функция масштабирования*/
+  public zoom:(factor: number)=>void=() => {}
+  /** базовый размер места в пикселях*/
+  public basicPlaceSize=-1
+  /** проверяет размер стола относительно базовой единицы и скрывает или показывает слои */
+  public checkLayers=(zoom = 1) => {
+    if (this.basicPlaceSize * zoom > 20) {
+      paper.project.layers[4].visible = false;
+      paper.project.layers[2].visible = true;
+    } else {
+      paper.project.layers[4].visible = true;
+      paper.project.layers[2].visible = false;
+    }
+  }
   // ========================= initialization=========================
   constructor(dxf: IDxf) {
     this.dxf = dxf;
@@ -109,10 +125,16 @@ export class MainDraw {
     }
 
     this.isReady = true;
+    this.zoom = zoom;
     paper.setup(this.canvas);
     this.layers = layers();
     this.scale = this.calcScale();
+    // @ts-ignore
+    paper.mainDraw = this;
+    this.basicPlaceSize = this.scale.scale(460);
     globalZoom();
+
+    this.checkLayers();
     // объединяем линии в поли линии
     this.entities = simplifyBlock(dxf.entities.filter((en) => this.showLayersAutocad[en.layer]));
     this.selection = {
@@ -134,9 +156,12 @@ export class MainDraw {
     const container = document.getElementById('canvas-container') as HTMLElement;
     const { height } = container.getBoundingClientRect();
     const scale = (c:number) => c * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]) * 1.35;
-    const x = (c:number ) => 368 + (c - ranges.xDomain[0]) * height * ratio / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
+    const x = (c:number, offset = 368 ) =>
+      offset + (c - ranges.xDomain[0]) * height * ratio / Math.abs(ranges.xDomain[1] - ranges.xDomain[0]);
     const y = (c:number ) => height - ( (c - ranges.yDomain[0]) * height / Math.abs(ranges.yDomain[1] - ranges.yDomain[0]));
+    const k = (x(ranges.xDomain[1]) - 368) / (yDomain[1] - yDomain[0]);
     return {
+      // k,
       x,
       y,
       scale,

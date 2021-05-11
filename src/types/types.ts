@@ -41,7 +41,7 @@ export interface IEntity {
 export type IAttributeMap = Record<string, IAttribute>;
 
 export interface IAttribute {
-  point: IVertex,
+  point?: IVertex,
   text: string,
   fontSize: number
 }
